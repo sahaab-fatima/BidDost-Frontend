@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tender Detail — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css?v=2">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">B</span> BidDost AI
+  <span class="lbl brand" style="font-size:11px;">TENDER DETAIL</span>
+  <span class="right">
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button>
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button>
+    <span id="user-name"></span>
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button>
+  </span>
+</div>
+
+<div class="onboard">
+  <div id="form-alert" class="alert danger" role="alert"></div>
+  <div id="success-alert" class="alert success" role="alert"></div>
+
+  <div style="margin-bottom:12px;">
+    <button class="btn ghost sm" onclick="BIDDOST.go('tenders.html')">← Back to Tender Inbox</button>
+  </div>
+
+  <div class="detail-hdr" id="tender-header">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:0;">
+        <div class="title" id="t-title">Loading…</div>
+        <div class="meta" id="t-meta">—</div>
+        <div class="facts" id="t-facts"></div>
+      </div>
+      <div id="t-match-box" style="text-align:center;"></div>
+    </div>
+    <div class="actions" id="t-actions"></div>
+  </div>
+
+  <div class="tabs" id="detail-tabs">
+    <button class="tab on" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="eligibility">Eligibility</button>
+  </div>
+
+  <div class="tab-panel on" data-panel="overview">
+    <div class="summary-grid">
+      <div class="card">
+        <div class="card-h">AI Extraction Summary</div>
+        <div id="ai-summary">
+          <div class="summary-section">
+            <div class="sec-title">Scope</div>
+            <div class="summary-item" id="s-scope">—</div>
+          </div>
+          <div class="summary-section">
+            <div class="sec-title">Required Documents</div>
+            <div id="s-docs">—</div>
+          </div>
+          <div class="summary-section">
+            <div class="sec-title">Fees</div>
+            <div class="summary-item" id="s-fees">—</div>
+          </div>
+          <div class="summary-section">
+            <div class="sec-title">Eligibility Criteria</div>
+            <div class="summary-item" id="s-elig">—</div>
+          </div>
+          <div class="summary-section">
+            <div class="sec-title">Risk Flags</div>
+            <div id="s-risks">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">Company Match</div>
+        <div id="company-match">
+          <div style="margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:13px; font-weight:700;">Overall Match</span>
+              <span id="match-score-badge">—</span>
+            </div>
+            <div class="scorebar" id="match-scorebar" style="width:100%; height:10px;"><i id="match-score-fill" style="width:0%"></i></div>
+          </div>
+          <div id="match-breakdown" style="font-size:13px; line-height:2;"></div>
+          <div style="margin-top:16px; padding-top:12px; border-top:var(--border);">
+            <div style="font-size:12px; font-weight:700; color:var(--neutral-500); margin-bottom:4px;">SUGGESTED ACTION</div>
+            <div id="suggested-action" style="font-size:13px; color:var(--neutral-700);">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <div class="card-h">Key Facts</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-top:8px;" id="key-facts-grid">
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" data-panel="eligibility">
+    <div class="verdict review" id="verdict-banner">
+      <span style="font-size:14px;">⚠</span>
+      <div class="v-label" id="verdict-label"><b>CONDITIONAL</b> — 2 requirements failing, 1 unclear</div>
+      <div class="v-action">
+        <button class="btn sec sm" onclick="rerunCheck()">↻ Re-run check</button>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-bottom:16px;">
+      <div class="kpi"><div class="num teal" id="kpi-pass">0</div><div class="lab">Pass</div></div>
+      <div class="kpi"><div class="num red" id="kpi-fail">0</div><div class="lab">Fail</div></div>
+      <div class="kpi"><div class="num amber" id="kpi-unclear">0</div><div class="lab">Unclear</div></div>
+      <div class="kpi"><div class="num brand" id="kpi-total">0</div><div class="lab">Total</div></div>
+    </div>
+
+    <div class="card" style="padding:0; overflow:hidden;">
+      <table class="elig-tbl">
+        <thead>
+          <tr>
+            <th style="width:110px;">Status</th>
+            <th>Requirement</th>
+            <th>Source</th>
+            <th>Evidence</th>
+            <th>Profile Value</th>
+            <th style="width:90px;"></th>
+          </tr>
+        </thead>
+        <tbody id="elig-list"></tbody>
+      </table>
+      <div class="empty hide" id="elig-empty">
+        <div class="big">⚖</div>
+        Run the eligibility check to see results.
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn sec" onclick="BIDDOST.go('tenders.html')">← Back to Inbox</button>
+      <button class="btn pri" id="bid-decision-btn" onclick="goToDecision()">Continue to Bid Decision →</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=11"></script>
+<script>
+(function () {
+  var B = window.BIDDOST;
+  B.guard("auth");
+
+  var user = null, companyId = null, tenderId = null, tender = null;
+
+  document.querySelectorAll("#detail-tabs .tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      document.querySelectorAll("#detail-tabs .tab").forEach(function (t) { t.classList.remove("on"); });
+      document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.remove("on"); });
+      tab.classList.add("on");
+      document.querySelector('.tab-panel[data-panel="' + tab.getAttribute("data-tab") + '"]').classList.add("on");
+    });
+  });
+
+  function loadTender() {
+    if (!tenderId) { return; }
+
+    B.getTender(tenderId).then(function (res) {
+      if (res.error || !res.data) { B.alert("form-alert", "danger", "Tender not found: " + (res.error ? res.error.message : "no data")); return; }
+      tender = res.data;
+      renderHeader();
+      renderOverview();
+      renderEligibility();
+
+      BIDDOST.supabase.from("tender_extractions").select("field, value, confidence, source_page").eq("tender_id", tenderId).then(function (extRes) {
+        if (extRes.error || !extRes.data || !extRes.data.length) return;
+        if (!tender.ai_summary) tender.ai_summary = {};
+        var map = {};
+        extRes.data.forEach(function (e) { map[e.field] = e.value; });
+        if (map.scope) tender.ai_summary.scope = map.scope;
+        if (map.required_documents) {
+          try { tender.ai_summary.required_documents = JSON.parse(map.required_documents); } catch(e) { tender.ai_summary.required_documents = map.required_documents.split(",").map(function(s){return s.trim();}); }
+        }
+        if (map.fee) tender.ai_summary.fees = map.fee;
+        if (map.eligibility_rules) tender.ai_summary.eligibility = map.eligibility_rules;
+        if (map.risks) {
+          try { tender.ai_summary.risk_flags = JSON.parse(map.risks); } catch(e) { tender.ai_summary.risk_flags = map.risks.split(",").map(function(s){return s.trim();}); }
+        }
+        if (map.title && !tender.title) tender.title = map.title;
+        if (map.buyer && !tender.organisation) tender.organisation = map.buyer;
+        if (map.dates && !tender.deadline) tender.deadline = map.dates;
+        if (map.earnest_money && !tender.earnest_money) tender.earnest_money = map.earnest_money;
+        if (map.security && !tender.bid_security_pct) tender.bid_security_pct = map.security;
+
+        renderHeader();
+        renderOverview();
+        renderEligibility();
+
+        if (companyId && (!tender.eligibility_data || !tender.eligibility_data.criteria || !tender.eligibility_data.criteria.length)) {
+          B.runEligibilityCheck(tenderId, companyId).then(function (eRes) {
+            if (!eRes.error && eRes.data) {
+              B.getTender(tenderId).then(function (refreshRes) {
+                if (refreshRes.data) {
+                  tender = refreshRes.data;
+                  renderHeader();
+                  renderOverview();
+                  renderEligibility();
+                }
+              });
+            }
+          }).catch(function () {});
+        }
+      }).catch(function () {});
+    });
+  }
+
+  function renderHeader() {
+    document.getElementById("t-title").textContent = tender.title;
+    document.title = tender.title + " — BidDost AI";
+
+    var meta = [];
+    if (tender.organisation) meta.push(tender.organisation);
+    if (tender.reference) meta.push("Ref " + tender.reference);
+    meta.push(tender.level);
+    if (tender.published_date) meta.push("Published " + tender.published_date);
+    document.getElementById("t-meta").textContent = meta.join(" · ");
+
+    var facts = [];
+    if (tender.deadline) {
+      var deadlineText = String(tender.deadline);
+      var dateMatch = deadlineText.match(/\d{2}\.\d{2}\.\d{4}/);
+      var dcLabel = '';
+      if (dateMatch) {
+        try {
+          var parts = dateMatch[0].split('.');
+          var d = new Date(parts[2], parts[1]-1, parts[0]);
+          var now = new Date();
+          var diff = Math.ceil((d - now) / (1000*60*60*24));
+          dcLabel = diff > 0 ? diff + 'd left' : diff === 0 ? 'Today' : Math.abs(diff) + 'd overdue';
+        } catch(e) {}
+      }
+      var dcSuffix = dcLabel ? ' <span class="tiny">(' + B.escape(dcLabel) + ')</span>' : '';
+      facts.push('<span class="fact deadline">Deadline: ' + B.escape(deadlineText.substring(0, 120)) + (deadlineText.length > 120 ? '…' : '') + dcSuffix + '</span>');
+    }
+    if (tender.value_pkr && !isNaN(Number(tender.value_pkr))) facts.push('<span class="fact value">PKR ' + Number(tender.value_pkr).toLocaleString() + '</span>');
+    if (tender.earnest_money) {
+      var emText = String(tender.earnest_money);
+      if (!isNaN(Number(tender.earnest_money))) {
+        facts.push('<span class="fact em">Earnest Money: PKR ' + Number(tender.earnest_money).toLocaleString() + '</span>');
+      } else {
+        facts.push('<span class="fact em">Earnest Money: ' + B.escape(emText.substring(0, 100)) + (emText.length > 100 ? '…' : '') + '</span>');
+      }
+    }
+    if (tender.bid_security_pct) {
+      var bsText = String(tender.bid_security_pct);
+      if (!isNaN(Number(tender.bid_security_pct))) {
+        facts.push('<span class="fact bid">Bid Security: ' + tender.bid_security_pct + '%</span>');
+      } else {
+        facts.push('<span class="fact bid">Bid Security: ' + B.escape(bsText.substring(0, 120)) + (bsText.length > 120 ? '…' : '') + '</span>');
+      }
+    }
+    document.getElementById("t-facts").innerHTML = facts.join("");
+
+    var mc = B.matchBadge(tender.match_score);
+    if (tender.match_score != null) {
+      document.getElementById("t-match-box").innerHTML =
+        '<div class="kpi" style="padding:12px 18px;">' +
+        '<div class="num ' + (tender.match_score >= 70 ? "teal" : tender.match_score >= 40 ? "amber" : "red") + '" style="font-size:28px;">' + tender.match_score + '%</div>' +
+        '<div class="lab">AI Match</div>' +
+        '<div class="scorebar ' + (tender.match_score >= 70 ? "hi" : tender.match_score >= 40 ? "mid" : "low") + '" style="width:90px; margin-top:6px;"><i style="width:' + tender.match_score + '%"></i></div>' +
+        '</div>';
+    }
+
+    var actions = [];
+    actions.push('<button class="btn pri sm" onclick="switchTab(\'eligibility\')">✓ Check Eligibility</button>');
+    actions.push('<button class="btn pri sm" onclick="goToDecision()">📊 Bid Decision</button>');
+    if (tender.file_path) actions.push('<button class="btn sec sm" onclick="viewPDF()">📄 View PDF</button>');
+    if (tender.source_url) actions.push('<a class="btn sec sm" href="' + B.escape(tender.source_url) + '" target="_blank">🔗 Official Link</a>');
+    document.getElementById("t-actions").innerHTML = actions.join("");
+  }
+
+  window.switchTab = function (name) {
+    document.querySelectorAll("#detail-tabs .tab").forEach(function (t) {
+      t.classList.toggle("on", t.getAttribute("data-tab") === name);
+    });
+    document.querySelectorAll(".tab-panel").forEach(function (p) {
+      p.classList.toggle("on", p.getAttribute("data-panel") === name);
+    });
+  };
+
+  window.viewPDF = function () {
+    if (!tender || !tender.file_path) return;
+    var res = B.getStorageUrl(tender.file_path);
+    var url = res && res.data ? res.data.publicUrl : null;
+    if (url) window.open(url, "_blank");
+  };
+
+  window.goToDecision = function () {
+    BIDDOST.go("bid-decision.html?id=" + tenderId);
+  };
+
+  function renderOverview() {
+    var raw = tender.ai_summary || {};
+    if (typeof raw === "string") { try { raw = JSON.parse(raw); } catch(e) { raw = {}; } }
+    var s = raw;
+
+    document.getElementById("s-scope").innerHTML = s.scope ? B.escape(s.scope) + '<span class="cite">' + (s.scope_page ? ' p.' + s.scope_page : '') + '</span>' : '<span class="muted">AI has not extracted scope yet.</span>';
+
+    var docs = s.required_documents || [];
+    if (docs.length) {
+      document.getElementById("s-docs").innerHTML = docs.map(function (d) {
+        return '<div class="summary-item">• ' + B.escape(d) + '</div>';
+      }).join("");
+    } else {
+      document.getElementById("s-docs").innerHTML = '<span class="muted">No documents listed yet.</span>';
+    }
+
+    document.getElementById("s-fees").innerHTML = s.fees ? B.escape(s.fees) + '<span class="cite">' + (s.fees_page ? ' p.' + s.fees_page : '') + '</span>' : '<span class="muted">Fee information not extracted yet.</span>';
+
+    document.getElementById("s-elig").innerHTML = s.eligibility ? B.escape(s.eligibility) + '<span class="cite">' + (s.eligibility_page ? ' p.' + s.eligibility_page : '') + '</span>' : '<span class="muted">Eligibility criteria not extracted yet.</span>';
+
+    var risks = s.risk_flags || [];
+    if (risks.length) {
+      document.getElementById("s-risks").innerHTML = risks.map(function (r) {
+        return '<div class="summary-item" style="color:var(--color-danger);">⚠ ' + B.escape(r) + '</div>';
+      }).join("");
+    } else {
+      document.getElementById("s-risks").innerHTML = '<span class="muted">No risk flags identified.</span>';
+    }
+
+    if (tender.match_score != null) {
+      var ms = tender.match_score;
+      document.getElementById("match-score-badge").innerHTML = '<span class="' + (ms >= 70 ? "match-hi" : ms >= 40 ? "match-mid" : "match-low") + '">' + ms + '%</span>';
+      document.getElementById("match-score-fill").style.width = ms + "%";
+      document.getElementById("match-scorebar").className = "scorebar " + (ms >= 70 ? "hi" : ms >= 40 ? "mid" : "low");
+    }
+
+    var bd = s.match_breakdown || [];
+    if (bd.length) {
+      document.getElementById("match-breakdown").innerHTML = bd.map(function (item) {
+        var color = item.status === "pass" ? "var(--color-teal)" : item.status === "fail" ? "var(--color-danger)" : "var(--color-amber)";
+        var icon = item.status === "pass" ? "✓" : item.status === "fail" ? "✗" : "~";
+        return '<div>' + item.label + ' <b style="color:' + color + '">' + icon + ' ' + item.value + '</b></div>';
+      }).join("");
+    } else {
+      document.getElementById("match-breakdown").innerHTML = '<div class="muted">Run eligibility check to see breakdown.</div>';
+    }
+
+    document.getElementById("suggested-action").textContent = s.suggested_action || "Check eligibility to see recommended next steps.";
+
+    var factsData = [
+      { label: "Level", value: tender.level },
+      { label: "Category", value: tender.category || "—" },
+      { label: "Source", value: tender.source || "—" },
+      { label: "Status", value: tender.status },
+      { label: "Published", value: tender.published_date || "—" },
+      { label: "Deadline", value: tender.deadline || "—" }
+    ];
+    document.getElementById("key-facts-grid").innerHTML = factsData.map(function (f) {
+      return '<div><div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--neutral-500); margin-bottom:4px;">' + f.label + '</div><div style="font-size:14px; font-weight:600; color:var(--neutral-800);">' + B.escape(f.value) + '</div></div>';
+    }).join("");
+  }
+
+  function renderEligibility() {
+    var ed = tender.eligibility_data;
+    if (!ed || !ed.criteria || !ed.criteria.length) {
+      document.getElementById("elig-empty").classList.remove("hide");
+      return;
+    }
+
+    document.getElementById("elig-empty").classList.add("hide");
+
+    var v = B.verdictLabel(ed.verdict);
+    var banner = document.getElementById("verdict-banner");
+    banner.className = "verdict " + ed.verdictCls;
+    document.getElementById("verdict-label").innerHTML = '<b>' + v.label + '</b> — ' + ed.passCount + ' passing, ' + ed.failCount + ' failing, ' + ed.unclearCount + ' unclear';
+
+    document.getElementById("kpi-pass").textContent = ed.passCount;
+    document.getElementById("kpi-fail").textContent = ed.failCount;
+    document.getElementById("kpi-unclear").textContent = ed.unclearCount;
+    document.getElementById("kpi-total").textContent = ed.criteria.length;
+
+    var box = document.getElementById("elig-list");
+    box.innerHTML = "";
+    ed.criteria.forEach(function (c) {
+      var statusCls = c.status === "pass" ? "elig-pass" : c.status === "fail" ? "elig-fail" : "elig-unclear";
+      var statusLabel = c.status === "pass" ? "✓ Pass" : c.status === "fail" ? "✗ Fail" : "~ Unclear";
+      var overrideHtml = "";
+      if (c.status !== "pass") {
+        overrideHtml = '<button class="btn sec sm" style="font-size:10px; padding:4px 8px;" onclick="overrideCriterion(\'' + c.id + '\', \'pass\')">Mark Pass</button>';
+      }
+      if (c.status !== "fail") {
+        overrideHtml += ' <button class="btn sec sm" style="font-size:10px; padding:4px 8px;" onclick="overrideCriterion(\'' + c.id + '\', \'fail\')">Mark Fail</button>';
+      }
+
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td class="status-cell"><span class="' + statusCls + '">' + statusLabel + '</span></td>' +
+        '<td class="req">' + B.escape(c.requirement) + '</td>' +
+        '<td>' + B.escape(c.source) + '</td>' +
+        '<td class="evidence">"' + B.escape(c.evidence) + '"</td>' +
+        '<td class="profile-val">' + B.escape(c.profile_value) + '</td>' +
+        '<td style="text-align:right;">' + overrideHtml + '</td>';
+      box.appendChild(tr);
+    });
+  }
+
+  window.overrideCriterion = function (criterionId, newStatus) {
+    if (!tenderId) return;
+    B.overrideEligibility(tenderId, criterionId, newStatus).then(function (res) {
+      if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+      B.getTender(tenderId).then(function (res2) {
+        if (res2.data) {
+          tender = res2.data;
+          renderEligibility();
+          B.alert("success-alert", "success", "Eligibility updated.");
+        }
+      });
+    });
+  };
+
+  window.rerunCheck = function () {
+    if (!tenderId || !companyId) return;
+    B.alert("success-alert", "success", "Re-running eligibility check…");
+    B.runEligibilityCheck(tenderId, companyId).then(function (res) {
+      if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+      B.getTender(tenderId).then(function (res2) {
+        if (res2.data) {
+          tender = res2.data;
+          renderEligibility();
+          B.alert("success-alert", "success", "Eligibility check complete.");
+        }
+      });
+    });
+  };
+
+  var params = new URLSearchParams(window.location.search);
+  tenderId = params.get("id");
+  if (!tenderId) { B.go("tenders.html"); return; }
+
+  B.user().then(function (u) {
+    user = u;
+    if (!u) { B.go("login.html"); return; }
+    if (u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+    return B.getCompany(u.id);
+  }).then(function (res) {
+    if (res && res.data) companyId = res.data.id;
+    loadTender();
+  }).catch(function () {
+    loadTender();
+  });
+})();
+</script>
+</body>
+</html>

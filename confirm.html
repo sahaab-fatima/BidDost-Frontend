@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Check Your Email — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="auth">
+  <div class="panel">
+    <div class="brand"><span class="logo">B</span> BidDost AI</div>
+    <div>
+      <h1>Almost there — one quick step.</h1>
+      <p>Confirm your email and we'll take you straight into company setup.</p>
+    </div>
+  </div>
+
+  <div class="form-side">
+    <div class="card center" style="text-align:center; padding:36px 28px;">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--color-teal-100);color:var(--color-teal);display:grid;place-items:center;font-size:34px;margin:0 auto 18px;">✉</div>
+      <h2>Check your inbox</h2>
+      <p class="muted" style="margin:10px 0 22px;">
+        We sent a confirmation link to your email.<br>
+        Click it to verify your account — the link expires in 24 hours.
+      </p>
+      <p class="muted" style="margin-bottom:22px;">Didn't get it? Check spam, or just try again.</p>
+      <div class="col">
+        <a class="btn sec full" href="login.html">Back to Sign In</a>
+        <a class="btn ghost full" href="signup.html">Resend sign-up</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+  (function () {
+    var B = window.BIDDOST;
+    B.guard("guest");
+  })();
+</script>
+</body>
+</html>

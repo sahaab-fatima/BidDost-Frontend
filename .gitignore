@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+deploy.bat
+fix-rls.ps1
+DEPLOY.md
+BidDost AI_04.pdf
+supabase/
+.opencode/
+.vscode/

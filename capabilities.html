@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capability Profile — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">B</span> BidDost AI
+  <span class="lbl brand" style="font-size:11px;">CAPABILITIES</span>
+  <span class="right"><button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button> <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button> <span id="user-name"></span> <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button></span>
+</div>
+
+<div class="onboard">
+  <div id="form-alert" class="alert danger" role="alert"></div>
+
+  <div class="step-labels">
+    <span>1 · Basics</span><span>2 · Categories</span><span>3 · Locations</span><span>4 · Registrations</span>
+    <span style="color:var(--color-teal);">5 · Capabilities</span><span>6 · Documents</span>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step cur"></div><div class="step"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-h">Capability profile</div>
+    <p class="muted" style="margin-bottom:18px;">
+      Define what your company can deliver and up to what value. The AI matches these against tender requirements.
+    </p>
+    <div class="form-grid">
+      <div>
+        <label class="lbl-f" for="cap-cat">Category *</label>
+        <select class="in" id="cap-cat">
+          <option value="">Select category…</option>
+          <option>Construction</option><option>Civil Works</option><option>Electrical</option>
+          <option>IT / Software</option><option>Telecom</option><option>Health / Medical</option>
+          <option>Supply &amp; Procurement</option><option>Transport &amp; Logistics</option>
+          <option>Consulting</option><option>Furniture &amp; Fixtures</option><option>Security Services</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl-f" for="cap-product">Product / service *</label>
+        <input class="in" id="cap-product" placeholder="e.g. Road construction &amp; bridges">
+      </div>
+      <div>
+        <label class="lbl-f" for="cap-value">Max contract value (PKR)</label>
+        <input class="in" id="cap-value" type="number" placeholder="e.g. 150000000">
+      </div>
+      <div>
+        <label class="lbl-f" for="cap-years">Years of experience</label>
+        <input class="in" id="cap-years" type="number" min="0" max="60" placeholder="e.g. 8">
+      </div>
+    </div>
+    <div style="margin-top:16px;"><button class="btn pri" id="add-cap" onclick="addCap()">+ Add capability</button></div>
+  </div>
+
+  <div class="card" id="cap-list-card">
+    <div class="card-h">Your capabilities <span class="lbl gray" id="cap-count">0</span></div>
+    <div id="cap-list"></div>
+    <div class="empty hide" id="cap-empty">
+      <div class="big">🛠</div>
+      Add your first capability above to start matching tenders.
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn sec" onclick="BIDDOST.go('company-setup.html')">← Back to setup</button>
+    <button class="btn pri" id="next" onclick="BIDDOST.go('documents.html')">Continue: Documents →</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+  (function () {
+    var B = window.BIDDOST;
+    B.guard("auth");
+
+    var companyId = null;
+
+    window.addCap = function () {
+      var cat = document.getElementById("cap-cat").value;
+      var product = document.getElementById("cap-product").value.trim();
+      var value = document.getElementById("cap-value").value;
+      var years = document.getElementById("cap-years").value;
+
+      if (!cat || !product) { B.alert("form-alert", "danger", "Category and product/service are required."); return; }
+
+      var btn = document.getElementById("add-cap");
+      B.setBusy(btn, true);
+      B.hideAlert("form-alert");
+      B.addCapability(companyId, {
+        category: cat,
+        product: product,
+        max_value: value ? Number(value) : null,
+        years_experience: years ? Number(years) : null
+      }).then(function (res) {
+        B.setBusy(btn, false);
+        if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+        document.getElementById("cap-product").value = "";
+        document.getElementById("cap-value").value = "";
+        document.getElementById("cap-years").value = "";
+        document.getElementById("cap-cat").value = "";
+        loadCaps();
+      });
+    };
+
+    window.rmCap = function (id) {
+      B.removeCapability(id).then(function (res) {
+        if (!res.error) loadCaps();
+      });
+    };
+
+    function loadCaps() {
+      B.listCapabilities(companyId).then(function (res) {
+        if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+        var list = res.data || [];
+        document.getElementById("cap-count").textContent = list.length;
+        document.getElementById("cap-empty").classList.toggle("hide", list.length > 0);
+
+        var box = document.getElementById("cap-list");
+        box.innerHTML = "";
+        list.forEach(function (c) {
+          var row = document.createElement("div");
+          row.className = "list-row";
+          row.innerHTML =
+            '<div class="grow"><b>' + B.escape(c.category) + ' — ' + B.escape(c.product) + '</b>' +
+            '<span>Max value: ' + (c.max_value ? "PKR " + Number(c.max_value).toLocaleString() : "—") +
+            ' · Experience: ' + (c.years_experience ? c.years_experience + " yrs" : "—") + '</span></div>' +
+            '<button class="del" onclick="rmCap(\'' + c.id + '\')">✕</button>';
+          box.appendChild(row);
+        });
+      });
+    }
+
+    B.user().then(function (u) {
+      if (u && u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+      return B.getCompany(u.id);
+    }).then(function (res) {
+      if (res.error || !res.data) { B.go("company-setup.html"); return; }
+      companyId = res.data.id;
+      loadCaps();
+    }).catch(function () {
+      B.go("company-setup.html");
+    });
+  })();
+</script>
+</body>
+</html>

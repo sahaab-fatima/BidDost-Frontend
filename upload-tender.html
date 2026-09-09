@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Tender — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css?v=2">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">B</span> BidDost AI
+  <span class="lbl brand" style="font-size:11px;">UPLOAD TENDER</span>
+  <span class="right">
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button>
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button>
+    <span id="user-name"></span>
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button>
+  </span>
+</div>
+
+<div class="onboard">
+  <div id="form-alert" class="alert danger" role="alert"></div>
+  <div id="success-alert" class="alert success" role="alert"></div>
+
+  <div style="margin-bottom:12px;">
+    <button class="btn ghost sm" onclick="BIDDOST.go('tenders.html')">← Back to Tender Inbox</button>
+  </div>
+
+  <h2 style="font-size:22px;">Upload Tender Document</h2>
+  <p class="muted" style="margin-top:4px; margin-bottom:18px;">Upload a PDF tender document. AI will extract key details automatically.</p>
+
+  <div class="grid-2" style="grid-template-columns:1fr 1fr; gap:24px;">
+    <!-- Left: Upload form -->
+    <div>
+      <div class="card">
+        <div class="card-h">Document</div>
+
+        <!-- Drop zone -->
+        <div id="drop-zone" style="border:2px dashed var(--neutral-300); border-radius:var(--radius-md); padding:32px; text-align:center; cursor:pointer; transition:.2s ease;" ondragover="event.preventDefault(); this.style.borderColor='var(--color-teal)'; this.style.background='var(--color-teal-50)'" ondragleave="this.style.borderColor='var(--neutral-300)'; this.style.background=''" ondrop="event.preventDefault(); this.style.borderColor='var(--neutral-300)'; this.style.background=''; handleFileDrop(event)">
+          <div style="font-size:32px; margin-bottom:8px;">📄</div>
+          <div style="font-size:14px; font-weight:700; color:var(--neutral-700); margin-bottom:4px;">Drop PDF here or click to browse</div>
+          <div class="tiny">Maximum file size: 50MB</div>
+          <input type="file" id="file-input" accept=".pdf" style="display:none;" onchange="handleFileSelect(event)">
+        </div>
+
+        <!-- File info (hidden initially) -->
+        <div id="file-info" class="hide" style="margin-top:12px; padding:10px 14px; background:var(--color-teal-50); border:1px solid var(--color-teal-200); border-radius:var(--radius-sm); display:flex; align-items:center; gap:10px;">
+          <span style="font-size:18px;">📄</span>
+          <div style="flex:1; min-width:0;">
+            <div id="file-name" style="font-size:13px; font-weight:700; color:var(--neutral-800); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+            <div id="file-size" class="tiny"></div>
+          </div>
+          <button class="btn ghost sm" onclick="clearFile()" style="color:var(--color-danger);">✕</button>
+        </div>
+
+        <!-- Duplicate warning (hidden) -->
+        <div id="dup-warning" class="dup-warn hide" style="margin-top:12px;">
+          <span class="dup-icon">⚠</span>
+          <div class="dup-body">
+            <div class="dup-title">Similar tender found</div>
+            <div class="dup-detail" id="dup-detail"></div>
+            <div class="dup-actions">
+              <button class="btn sec sm" onclick="clearDupWarning()">Cancel</button>
+              <button class="btn pri sm" onclick="submitAnyway()">Upload anyway</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tender details -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-h">Tender Details</div>
+        <div class="col">
+          <div>
+            <label class="lbl">Title <span style="color:var(--color-danger);">*</span></label>
+            <input class="in" id="f-title" type="text" placeholder="e.g. Road Construction Phase II">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label class="lbl">Reference No.</label>
+              <input class="in" id="f-reference" type="text" placeholder="e.g. NHA/2026/045">
+            </div>
+            <div>
+              <label class="lbl">Organisation</label>
+              <input class="in" id="f-organisation" type="text" placeholder="e.g. National Highway Authority">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label class="lbl">Level</label>
+              <select class="in" id="f-level">
+                <option value="Federal">Federal</option>
+                <option value="Provincial">Provincial</option>
+                <option value="Public-sector">Public-sector</option>
+              </select>
+            </div>
+            <div>
+              <label class="lbl">Category</label>
+              <select class="in" id="f-category">
+                <option value="">Any</option>
+                <option value="Construction">Construction</option>
+                <option value="IT">IT</option>
+                <option value="Consulting">Consulting</option>
+                <option value="Supplies">Supplies</option>
+                <option value="Services">Services</option>
+                <option value="Infrastructure">Infrastructure</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label class="lbl">Deadline</label>
+              <input class="in" id="f-deadline" type="date">
+            </div>
+            <div>
+              <label class="lbl">Estimated Value (PKR)</label>
+              <input class="in" id="f-value" type="number" placeholder="e.g. 50000000">
+            </div>
+          </div>
+          <div>
+            <label class="lbl">Source / URL (optional)</label>
+            <input class="in" id="f-source" type="text" placeholder="e.g. https://eprocurement.gov.pk/...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <button class="btn pri" id="submit-btn" onclick="submitTender()">Upload & Analyze</button>
+        <button class="btn sec" onclick="BIDDOST.go('tenders.html')">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Right: Processing / Recent -->
+    <div>
+      <!-- Processing card (hidden initially) -->
+      <div id="processing-card" class="card hide">
+        <div class="card-h">Processing Status</div>
+
+        <div class="status-step">
+          <div class="step-icon pending" id="step-upload-icon">⏳</div>
+          <div class="step-body">
+            <div class="step-title">Upload PDF</div>
+            <div class="step-desc" id="step-upload-desc">Waiting…</div>
+          </div>
+        </div>
+
+        <div class="status-step">
+          <div class="step-icon pending" id="step-extract-icon">⏳</div>
+          <div class="step-body">
+            <div class="step-title">AI Extraction</div>
+            <div class="step-desc" id="step-extract-desc">Waiting…</div>
+          </div>
+        </div>
+
+        <div class="status-step">
+          <div class="step-icon pending" id="step-match-icon">⏳</div>
+          <div class="step-body">
+            <div class="step-title">Profile Match</div>
+            <div class="step-desc" id="step-match-desc">Waiting…</div>
+          </div>
+        </div>
+
+        <div class="status-step">
+          <div class="step-icon pending" id="step-done-icon">⏳</div>
+          <div class="step-body">
+            <div class="step-title">Ready</div>
+            <div class="step-desc" id="step-done-desc">Waiting…</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn pri sm hide" id="view-tender-btn" onclick="goToTender()">View Tender →</button>
+          <button class="btn sec sm hide" id="retry-btn" onclick="retryProcessing()">↻ Retry</button>
+        </div>
+      </div>
+
+      <!-- Recent uploads -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-h">Recent Uploads</div>
+        <div id="recent-uploads">
+          <div class="tiny" style="color:var(--neutral-400); padding:12px 0;">No uploads yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=11"></script>
+<script>
+(function () {
+  var B = window.BIDDOST;
+  B.guard("auth");
+
+  var user = null, companyId = null;
+  var pendingFile = null;
+  var currentTenderId = null;
+  var currentFilePath = null;
+  var skipDuplicate = false;
+
+  /* ====== Init ====== */
+  B.user().then(function (u) {
+    user = u;
+    if (u && u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+    return B.getCompany(u.id);
+  }).then(function (res) {
+    if (res.error || !res.data) { companyId = null; } else { companyId = res.data.id; }
+    loadRecentUploads();
+  }).catch(function () {
+    loadRecentUploads();
+  });
+
+  /* ====== Drop zone ====== */
+  document.getElementById("drop-zone").addEventListener("click", function () {
+    document.getElementById("file-input").click();
+  });
+
+  window.handleFileDrop = function (e) {
+    var file = e.dataTransfer.files[0];
+    if (file) setFile(file);
+  };
+
+  window.handleFileSelect = function (e) {
+    var file = e.target.files[0];
+    if (file) setFile(file);
+  };
+
+  function setFile(file) {
+    if (file.type !== "application/pdf") {
+      B.alert("form-alert", "danger", "Only PDF files are supported.");
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      B.alert("form-alert", "danger", "File size exceeds 50MB limit.");
+      return;
+    }
+    pendingFile = file;
+    document.getElementById("file-name").textContent = file.name;
+    document.getElementById("file-size").textContent = (file.size / 1024).toFixed(1) + " KB";
+    document.getElementById("file-info").classList.remove("hide");
+    document.getElementById("drop-zone").classList.add("hide");
+
+    // Auto-fill title from filename
+    var titleInput = document.getElementById("f-title");
+    if (!titleInput.value) {
+      var name = file.name.replace(/\.pdf$/i, "").replace(/[-_]/g, " ");
+      titleInput.value = name;
+    }
+
+    // Check for duplicates
+    checkDuplicate(file.name);
+  }
+
+  window.clearFile = function () {
+    pendingFile = null;
+    document.getElementById("file-input").value = "";
+    document.getElementById("file-info").classList.add("hide");
+    document.getElementById("drop-zone").classList.remove("hide");
+    clearDupWarning();
+  };
+
+  /* ====== Duplicate check ====== */
+  function checkDuplicate(filename) {
+    var title = filename.replace(/\.pdf$/i, "").replace(/[-_]/g, " ");
+    B.checkDuplicateTender(title, null).then(function (res) {
+      if (res.error || !res.data || !res.data.length) return;
+      var existing = res.data[0];
+      document.getElementById("dup-detail").textContent =
+        "A tender \"" + existing.title + "\" (Ref: " + (existing.reference || "none") + ", Status: " + existing.status + ") already exists.";
+      document.getElementById("dup-warning").classList.remove("hide");
+    });
+  }
+
+  window.clearDupWarning = function () {
+    document.getElementById("dup-warning").classList.add("hide");
+  };
+
+  window.submitAnyway = function () {
+    skipDuplicate = true;
+    clearDupWarning();
+    doSubmit();
+  };
+
+  /* ====== Submit tender ====== */
+  window.submitTender = function () {
+    B.hideAlert("form-alert");
+    B.hideAlert("success-alert");
+    var title = document.getElementById("f-title").value.trim();
+    if (!title) { B.alert("form-alert", "danger", "Please enter a tender title."); return; }
+    if (!pendingFile) { B.alert("form-alert", "danger", "Please select a PDF file to upload."); return; }
+    if (!skipDuplicate) {
+      checkDuplicate(pendingFile.name);
+      if (!document.getElementById("dup-warning").classList.contains("hide")) return;
+    }
+    doSubmit();
+  };
+
+  function doSubmit() {
+    var btn = document.getElementById("submit-btn");
+    B.setBusy(btn, true);
+
+    var data = {
+      title: document.getElementById("f-title").value.trim(),
+      reference: document.getElementById("f-reference").value.trim() || null,
+      organisation: document.getElementById("f-organisation").value.trim() || null,
+      level: document.getElementById("f-level").value,
+      category: document.getElementById("f-category").value || null,
+      deadline: document.getElementById("f-deadline").value || null,
+      value_pkr: document.getElementById("f-value").value ? Number(document.getElementById("f-value").value) : null,
+      source: document.getElementById("f-source").value.trim() || null,
+      status: "New",
+      uploaded_by: user.id
+    };
+
+    showProcessing();
+
+    B.createTender(data).then(function (res) {
+      if (res.error) throw new Error(res.error.message);
+      currentTenderId = res.data.id;
+
+      // Upload file to storage
+      return B.uploadTenderFile(pendingFile);
+    }).then(function (path) {
+      currentFilePath = path;
+      // Update tender with file path
+      return B.updateTender(currentTenderId, { file_path: path });
+    }).then(function (res) {
+      if (res.error) throw new Error(res.error.message);
+      B.setBusy(btn, false);
+      simulateProcessing();
+    }).catch(function (err) {
+      B.setBusy(btn, false);
+      B.alert("form-alert", "danger", "Failed to create tender: " + err.message);
+    });
+  }
+
+  /* ====== Processing steps ====== */
+  function showProcessing() {
+    document.getElementById("processing-card").classList.remove("hide");
+    document.getElementById("view-tender-btn").classList.add("hide");
+    document.getElementById("retry-btn").classList.add("hide");
+    ["step-upload", "step-extract", "step-match", "step-done"].forEach(function (id) {
+      document.getElementById(id + "-icon").className = "step-icon pending";
+      document.getElementById(id + "-icon").textContent = "⏳";
+      document.getElementById(id + "-desc").textContent = "Waiting…";
+    });
+  }
+
+  function simulateProcessing() {
+    var icon = document.getElementById("step-upload-icon");
+    var desc = document.getElementById("step-upload-desc");
+
+    icon.className = "step-icon active";
+    icon.textContent = "⟳";
+    desc.textContent = "Uploading PDF to secure storage…";
+
+    setTimeout(function () {
+      icon.className = "step-icon done";
+      icon.textContent = "✓";
+      desc.textContent = "PDF uploaded successfully.";
+      setTimeout(runAiExtraction, 300);
+    }, 600);
+  }
+
+  function runAiExtraction() {
+    var extractIcon = document.getElementById("step-extract-icon");
+    var extractDesc = document.getElementById("step-extract-desc");
+
+    if (!pendingFile) {
+      finishProcessing();
+      return;
+    }
+
+    extractIcon.className = "step-icon active";
+    extractIcon.textContent = "⟳";
+    extractDesc.textContent = "Extracting text from PDF pages…";
+
+    B.extractPdfPages(pendingFile).then(function (pages) {
+      extractDesc.textContent = "Saving " + pages.length + " pages…";
+      return B.createTenderFile(currentTenderId, currentFilePath, pages.length).then(function (res) {
+        if (res.error) throw new Error(res.error.message);
+        var fileId = res.data.id;
+        return B.createTenderPages(fileId, pages);
+      });
+    }).then(function () {
+      extractDesc.textContent = "Sending to AI for analysis…";
+      return B.callExtractTender(currentTenderId);
+    }).then(function (result) {
+      if (result.error) {
+        extractIcon.className = "step-icon fail";
+        extractIcon.textContent = "✗";
+        extractDesc.textContent = "AI extraction failed: " + result.error;
+        document.getElementById("retry-btn").classList.remove("hide");
+        return;
+      }
+      extractIcon.className = "step-icon done";
+      extractIcon.textContent = "✓";
+      extractDesc.textContent = "Extracted " + (result.extractions_count || 0) + " fields from document.";
+      finishProcessing();
+    }).catch(function (err) {
+      extractIcon.className = "step-icon fail";
+      extractIcon.textContent = "✗";
+      extractDesc.textContent = "Error: " + (err.message || "Unknown error");
+      document.getElementById("retry-btn").classList.remove("hide");
+    });
+  }
+
+  function finishProcessing() {
+    if (currentTenderId) {
+      var matchIcon = document.getElementById("step-match-icon");
+      var matchDesc = document.getElementById("step-match-desc");
+      var doneIcon = document.getElementById("step-done-icon");
+      var doneDesc = document.getElementById("step-done-desc");
+
+      matchIcon.className = "step-icon active";
+      matchIcon.textContent = "⟳";
+      matchDesc.textContent = "Matching against your capabilities…";
+
+      setTimeout(function () {
+        matchIcon.className = "step-icon done";
+        matchIcon.textContent = "✓";
+        matchDesc.textContent = "Profile match complete.";
+
+        doneIcon.className = "step-icon active";
+        doneIcon.textContent = "⟳";
+        doneDesc.textContent = "Finalizing…";
+
+        setTimeout(function () {
+          doneIcon.className = "step-icon done";
+          doneIcon.textContent = "✓";
+          doneDesc.textContent = "Tender added to your inbox.";
+          document.getElementById("view-tender-btn").classList.remove("hide");
+          document.getElementById("retry-btn").classList.add("hide");
+          B.alert("success-alert", "success", "Tender uploaded and processed successfully!");
+          loadRecentUploads();
+        }, 500);
+      }, 800);
+    }
+  }
+
+  window.retryProcessing = function () {
+    if (!currentTenderId) return;
+    document.getElementById("retry-btn").classList.add("hide");
+    ["step-upload", "step-extract", "step-match", "step-done"].forEach(function (id) {
+      document.getElementById(id + "-icon").className = "step-icon pending";
+      document.getElementById(id + "-icon").textContent = "⏳";
+      document.getElementById(id + "-desc").textContent = "Waiting…";
+    });
+    B.updateTenderStatus(currentTenderId, "New").then(function () {
+      simulateProcessing();
+    });
+  };
+
+  window.goToTender = function () {
+    if (currentTenderId) {
+      B.go("tender-detail.html?id=" + currentTenderId);
+    }
+  };
+
+  /* ====== Recent uploads ====== */
+  function loadRecentUploads() {
+    if (!user) return;
+    B.listMyUploads(user.id).then(function (res) {
+      var box = document.getElementById("recent-uploads");
+      if (res.error || !res.data || !res.data.length) {
+        box.innerHTML = '<div class="tiny" style="color:var(--neutral-400); padding:12px 0;">No uploads yet.</div>';
+        return;
+      }
+      box.innerHTML = "";
+      res.data.slice(0, 5).forEach(function (t) {
+        var statusCls = (t.status || "new").toLowerCase().replace(/\s+/g, "");
+        var div = document.createElement("div");
+        div.style.cssText = "display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:var(--border);";
+        div.innerHTML =
+          '<span style="font-size:16px;">📄</span>' +
+          '<div style="flex:1; min-width:0;">' +
+            '<div style="font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer;" onclick="BIDDOST.go(\'tender-detail.html?id=' + t.id + '\')">' + B.escape(t.title) + '</div>' +
+            '<div class="tiny">' + B.escape(t.organisation || "Unknown org") + ' · ' + B.escape(t.level || "") + '</div>' +
+          '</div>' +
+          '<span class="sts ' + statusCls + '">' + B.escape(t.status || "New") + '</span>';
+        box.appendChild(div);
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Complete — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">B</span> BidDost AI
+  <span class="lbl brand" style="font-size:11px;">SETUP COMPLETE</span>
+  <span class="right"><button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button> <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button> <span id="user-name"></span> <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button></span>
+</div>
+
+<div class="done-wrap">
+  <div class="check">✓</div>
+  <h1 style="font-size:26px; color:var(--color-brand);">Profile complete!</h1>
+  <p class="muted" style="margin:10px 0 8px;">
+    Your company is set up and ready. The AI will now match tenders against your profile.
+  </p>
+
+  <div class="card" style="text-align:left; margin:22px 0;">
+    <div class="card-h">What you've completed</div>
+    <div style="font-size:13.5px; line-height:2;">
+      <div>✓ <b>Account &amp; sign-in</b> — connected to Supabase Auth</div>
+      <div>✓ <b>Company profile</b> — basics, categories, locations, registrations</div>
+      <div>✓ <b>Capability profile</b> — what you deliver and up to what value</div>
+      <div>✓ <b>Documents</b> — certificates tracked with expiry</div>
+    </div>
+  </div>
+
+  <div class="col">
+    <a class="btn pri full" href="tenders.html">Go to Tender Inbox</a>
+    <a class="btn sec full" href="company-profile.html">Edit Company Profile</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+  (function () {
+    var B = window.BIDDOST;
+    B.guard("auth");
+    B.user().then(function (u) {
+      if (u && u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+    });
+  })();
+</script>
+</body>
+</html>

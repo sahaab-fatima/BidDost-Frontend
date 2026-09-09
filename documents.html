@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documents &amp; Expiry — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">B</span> BidDost AI
+  <span class="lbl brand" style="font-size:11px;">DOCUMENTS</span>
+  <span class="right"><button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button> <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button> <span id="user-name"></span> <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button></span>
+</div>
+
+<div class="onboard">
+  <div id="form-alert" class="alert danger" role="alert"></div>
+
+  <div class="step-labels">
+    <span>1 · Basics</span><span>2 · Categories</span><span>3 · Locations</span><span>4 · Registrations</span>
+    <span style="color:var(--color-teal);">5 · Capabilities</span><span style="color:var(--color-teal);">6 · Documents</span>
+  </div>
+  <div class="steps">
+    <div class="step done"></div><div class="step done"></div><div class="step done"></div>
+    <div class="step done"></div><div class="step done"></div><div class="step cur"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-h">Certificates &amp; document expiry</div>
+    <p class="muted" style="margin-bottom:18px;">
+      Track when certificates expire. The expiry badge helps you renew before a tender requires them.
+    </p>
+    <div class="form-grid">
+      <div>
+        <label class="lbl-f" for="cert-type">Certificate / document type *</label>
+        <select class="in" id="cert-type">
+          <option value="">Select type…</option>
+          <option>PEC Registration</option>
+          <option>PSEB Registration</option>
+          <option>SECP Certificate</option>
+          <option>ISO Certification</option>
+          <option>Tax Exemption Certificate</option>
+          <option>Bank Guarantee / Bid Bond</option>
+          <option>Business / Trade Licence</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl-f" for="cert-expiry">Expiry date</label>
+        <input class="in" id="cert-expiry" type="date">
+      </div>
+      <div class="full">
+        <label class="lbl-f">Document file (optional)</label>
+        <label class="upload" id="upload-label">
+          <span id="upload-name">Click to upload PDF / image</span>
+          <input class="file" id="cert-file" type="file" accept=".pdf,.png,.jpg,.jpeg">
+        </label>
+      </div>
+    </div>
+    <div style="margin-top:16px;"><button class="btn pri" id="add-cert" onclick="addCert()">+ Add document</button></div>
+  </div>
+
+  <div class="card" id="cert-list-card">
+    <div class="card-h">Your documents <span class="lbl gray" id="cert-count">0</span></div>
+    <div id="cert-list"></div>
+    <div class="empty hide" id="cert-empty">
+      <div class="big">📁</div>
+      No documents yet. Add certificates so the eligibility checker can use them as evidence.
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn sec" onclick="BIDDOST.go('capabilities.html')">← Back to capabilities</button>
+    <button class="btn pri" id="finish" onclick="finish()">Finish Setup →</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+  (function () {
+    var B = window.BIDDOST;
+    B.guard("auth");
+
+    var companyId = null;
+    var pendingFile = null;
+
+    document.getElementById("cert-file").addEventListener("change", function (e) {
+      var f = e.target.files && e.target.files[0];
+      pendingFile = f || null;
+      document.getElementById("upload-name").textContent = f ? f.name : "Click to upload PDF / image";
+    });
+
+    window.addCert = function () {
+      var type = document.getElementById("cert-type").value;
+      var expiry = document.getElementById("cert-expiry").value;
+      if (!type) { B.alert("form-alert", "danger", "Select a certificate type."); return; }
+
+      var btn = document.getElementById("add-cert");
+      B.setBusy(btn, true);
+      B.hideAlert("form-alert");
+
+      function save(path) {
+        return B.addCertificate(companyId, { type: type, expiry_date: expiry || null, file_path: path || null }).then(function (res) {
+          B.setBusy(btn, false);
+          if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+          document.getElementById("cert-type").value = "";
+          document.getElementById("cert-expiry").value = "";
+          document.getElementById("cert-file").value = "";
+          pendingFile = null;
+          document.getElementById("upload-name").textContent = "Click to upload PDF / image";
+          loadCerts();
+        });
+      }
+
+      if (pendingFile) {
+        B.uploadDocument(pendingFile).then(function (path) {
+          return save(path);
+        }).catch(function (err) {
+          B.setBusy(btn, false);
+          B.alert("form-alert", "warn", "File upload failed (" + (err.message || "storage not configured") + "). Saved without file.");
+          save(null);
+        });
+      } else {
+        save(null);
+      }
+    };
+
+    window.rmCert = function (id) {
+      B.removeCertificate(id).then(function (res) {
+        if (!res.error) loadCerts();
+      });
+    };
+
+    function loadCerts() {
+      B.listCertificates(companyId).then(function (res) {
+        if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+        var list = res.data || [];
+        document.getElementById("cert-count").textContent = list.length;
+        document.getElementById("cert-empty").classList.toggle("hide", list.length > 0);
+
+        var box = document.getElementById("cert-list");
+        box.innerHTML = "";
+        list.forEach(function (c) {
+          var st = B.expiryStatus(c.expiry_date);
+          var row = document.createElement("div");
+          row.className = "list-row";
+          row.innerHTML =
+            '<div class="grow"><b>' + B.escape(c.type) + '</b>' +
+            '<span>' + (c.expiry_date ? "Expires " + c.expiry_date : "No expiry set") +
+            (c.file_path ? " · 📎 attached" : "") + '</span></div>' +
+            '<span class="' + st.cls + '">' + st.label + '</span>' +
+            '<button class="del" onclick="rmCert(\'' + c.id + '\')">✕</button>';
+          box.appendChild(row);
+        });
+      });
+    }
+
+    window.finish = function () {
+      var btn = document.getElementById("finish");
+      B.setBusy(btn, true);
+      B.hideAlert("form-alert");
+      B.completeOnboarding(companyId).then(function (res) {
+        B.setBusy(btn, false);
+        if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+        B.go("done.html");
+      });
+    };
+
+    B.user().then(function (u) {
+      if (u && u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+      return B.getCompany(u.id);
+    }).then(function (res) {
+      if (res.error || !res.data) { B.go("company-setup.html"); return; }
+      companyId = res.data.id;
+      loadCerts();
+    }).catch(function () {
+      B.go("company-setup.html");
+    });
+  })();
+</script>
+</body>
+</html>

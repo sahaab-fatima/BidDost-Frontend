@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="auth">
+  <div class="panel">
+    <div class="brand"><span class="logo">B</span> BidDost AI</div>
+    <div>
+      <h1>Join the platform. Set up your company in minutes.</h1>
+      <p>Create your account, then complete the company profile — basics, categories, locations, registrations, capabilities and certificates.</p>
+      <div class="pills">
+        <span class="pill">Step 1 · Create account</span>
+        <span class="pill">Step 2 · Company setup</span>
+        <span class="pill">Step 3 · Capabilities</span>
+        <span class="pill">Step 4 · Documents</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-side">
+    <div class="card">
+      <h2>Create account</h2>
+      <p class="muted" style="margin:4px 0 20px;">Start with your personal sign-in. Company details come next.</p>
+
+      <div id="form-alert" class="alert danger" role="alert"></div>
+
+      <form id="signup-form" novalidate>
+        <div class="col">
+          <div>
+            <label class="lbl-f" for="fullname">Full name</label>
+            <input class="in" id="fullname" type="text" placeholder="e.g. Atif Riaz" autocomplete="name" required>
+          </div>
+          <div>
+            <label class="lbl-f" for="email">Work email</label>
+            <input class="in" id="email" type="email" placeholder="you@company.com" autocomplete="email" required>
+          </div>
+          <div>
+            <label class="lbl-f" for="password">Password</label>
+            <input class="in" id="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" required>
+            <div class="pw-hint"><span id="pw-meter"></span></div>
+          </div>
+          <div>
+            <label class="lbl-f" for="confirm">Confirm password</label>
+            <input class="in" id="confirm" type="password" placeholder="Re-enter your password" autocomplete="new-password" required>
+          </div>
+          <label class="ck"><input type="checkbox" id="terms" required> I agree to the Terms of Service and Privacy Policy</label>
+          <button class="btn pri full" type="submit"><span class="spin"></span> Create Account</button>
+        </div>
+      </form>
+
+      <div class="auth-foot">Already have an account? <a href="login.html">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+  (function () {
+    var B = window.BIDDOST;
+    B.guard("guest");
+
+    var meter = document.getElementById("pw-meter");
+    document.getElementById("password").addEventListener("input", function (e) {
+      var s = B.pwStrength(e.target.value);
+      meter.className = s <= 1 ? "weak" : s <= 3 ? "mid" : "strong";
+    });
+
+    var form = document.getElementById("signup-form");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = form.querySelector(".btn.pri");
+      var name = document.getElementById("fullname").value.trim();
+      var email = document.getElementById("email").value.trim();
+      var password = document.getElementById("password").value;
+      var confirm = document.getElementById("confirm").value;
+
+      if (!name) { B.alert("form-alert", "danger", "Enter your full name."); return; }
+      if (password.length < 8) { B.alert("form-alert", "danger", "Password must be at least 8 characters."); return; }
+      if (password !== confirm) { B.alert("form-alert", "danger", "Passwords do not match."); return; }
+      if (!document.getElementById("terms").checked) { B.alert("form-alert", "danger", "Please accept the terms to continue."); return; }
+
+      B.setBusy(btn, true);
+      B.hideAlert("form-alert");
+      B.signUp(name, email, password).then(function (res) {
+        B.setBusy(btn, false);
+        if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+        if (res.data && res.data.session) {
+          B.go("company-setup.html");
+        } else {
+          window.location.href = B.rel("confirm.html");
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>

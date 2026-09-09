@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="auth">
+  <div class="panel">
+    <div class="brand"><span class="logo">B</span> BidDost AI</div>
+    <div>
+      <h1>Track every tender. Miss no requirement.</h1>
+      <p>Sign in to manage your company profile, tender inbox, eligibility checks and bid decisions.</p>
+      <div class="pills">
+        <span class="pill">Federal &amp; provincial tenders</span>
+        <span class="pill">AI extraction</span>
+        <span class="pill">Evidence-backed</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-side">
+    <div class="card">
+      <h2>Welcome back</h2>
+      <p class="muted" style="margin:4px 0 20px;">Sign in to your company account.</p>
+
+      <div id="form-alert" class="alert danger" role="alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="col">
+          <div>
+            <label class="lbl-f" for="email">Email</label>
+            <input class="in" id="email" type="email" placeholder="you@company.com" autocomplete="email" required>
+          </div>
+          <div>
+            <label class="lbl-f" for="password">Password</label>
+            <input class="in" id="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+          </div>
+          <div class="row" style="justify-content:space-between;">
+            <label class="ck" style="margin:0;"><input type="checkbox" checked> Keep me signed in</label>
+            <a href="reset.html" style="font-weight:700; font-size:13px;">Forgot password?</a>
+          </div>
+          <button class="btn pri full" type="submit"><span class="spin"></span> Sign In</button>
+          <button class="btn sec full" type="button" disabled>Continue with Google <span class="tiny">(coming soon)</span></button>
+        </div>
+      </form>
+
+      <div class="auth-foot">New here? <a href="signup.html">Create your company account</a></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+  (function () {
+    var B = window.BIDDOST;
+    B.guard("guest");
+    var form = document.getElementById("login-form");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = form.querySelector(".btn.pri");
+      var email = document.getElementById("email").value.trim();
+      var password = document.getElementById("password").value;
+
+      if (!email || !password) { B.alert("form-alert", "danger", "Enter your email and password."); return; }
+
+      B.setBusy(btn, true);
+      B.hideAlert("form-alert");
+      B.signIn(email, password).then(function (res) {
+        B.setBusy(btn, false);
+        if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+        B.getCompany(res.data.user.id).then(function (cRes) {
+          if (cRes.data && cRes.data.onboarding_complete) {
+            B.go("tenders.html");
+          } else {
+            B.go("company-setup.html");
+          }
+        }).catch(function () {
+          B.go("company-setup.html");
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

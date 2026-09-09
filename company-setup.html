@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company Setup — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">B</span> BidDost AI
+  <span class="lbl brand" style="font-size:11px;">COMPANY SETUP</span>
+  <span class="right"><button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button> <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button> <span id="user-name"></span> <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button></span>
+</div>
+
+<div class="onboard">
+  <div id="form-alert" class="alert danger" role="alert"></div>
+
+  <div class="step-labels">
+    <span>1 · Basics</span><span>2 · Categories</span><span>3 · Locations</span><span>4 · Registrations</span>
+  </div>
+  <div class="steps">
+    <div class="step done" data-s="0"></div>
+    <div class="step" data-s="1"></div>
+    <div class="step" data-s="2"></div>
+    <div class="step" data-s="3"></div>
+  </div>
+
+  <!-- STEP 1 · Company basics -->
+  <div class="card" data-step="0">
+    <div class="card-h">Company basics</div>
+    <p class="muted" style="margin-bottom:18px;">This is the public identity of your company on BidDost AI.</p>
+    <div class="form-grid">
+      <div class="full">
+        <label class="lbl-f" for="c-name">Company legal name *</label>
+        <input class="in" id="c-name" placeholder="e.g. Al-Rafiq Engineering (Pvt) Ltd" required>
+      </div>
+      <div>
+        <label class="lbl-f" for="c-type">Legal type *</label>
+        <select class="in" id="c-type">
+          <option value="">Select type…</option>
+          <option>Private Limited</option>
+          <option>Public Limited</option>
+          <option>Sole Proprietorship</option>
+          <option>Partnership</option>
+          <option>Joint Venture</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl-f" for="c-founding">Year founded</label>
+        <input class="in" id="c-founding" type="number" min="1950" max="2026" placeholder="e.g. 2012">
+      </div>
+      <div>
+        <label class="lbl-f" for="c-reg">Registration / NTN number</label>
+        <input class="in" id="c-reg" placeholder="e.g. NTN 89-012-3456">
+      </div>
+      <div>
+        <label class="lbl-f" for="c-gst">GST number</label>
+        <input class="in" id="c-gst" placeholder="e.g. GST 1234567">
+      </div>
+      <div class="full">
+        <label class="lbl-f" for="c-desc">Short description</label>
+        <textarea class="in" id="c-desc" placeholder="What does your company do? This helps the AI match tenders."></textarea>
+      </div>
+    </div>
+    <div class="actions"><span></span><button class="btn pri" onclick="nextStep()">Continue →</button></div>
+  </div>
+
+  <!-- STEP 2 · Business categories -->
+  <div class="card hide" data-step="1">
+    <div class="card-h">Business categories</div>
+    <p class="muted" style="margin-bottom:18px;">Select all categories you work in. The AI uses these to filter the tender inbox.</p>
+    <div class="chip-grid" id="cat-grid">
+      <button type="button" class="chip-sel" data-v="Construction">Construction</button>
+      <button type="button" class="chip-sel" data-v="Civil Works">Civil Works</button>
+      <button type="button" class="chip-sel" data-v="Electrical">Electrical</button>
+      <button type="button" class="chip-sel" data-v="IT / Software">IT / Software</button>
+      <button type="button" class="chip-sel" data-v="Telecom">Telecom</button>
+      <button type="button" class="chip-sel" data-v="Health / Medical">Health / Medical</button>
+      <button type="button" class="chip-sel" data-v="Supply &amp; Procurement">Supply &amp; Procurement</button>
+      <button type="button" class="chip-sel" data-v="Transport &amp; Logistics">Transport &amp; Logistics</button>
+      <button type="button" class="chip-sel" data-v="Consulting">Consulting</button>
+      <button type="button" class="chip-sel" data-v="Furniture &amp; Fixtures">Furniture &amp; Fixtures</button>
+      <button type="button" class="chip-sel" data-v="Printing &amp; Stationery">Printing &amp; Stationery</button>
+      <button type="button" class="chip-sel" data-v="Security Services">Security Services</button>
+    </div>
+    <div class="actions"><button class="btn sec" onclick="prevStep()">← Back</button><button class="btn pri" onclick="nextStep()">Continue →</button></div>
+  </div>
+
+  <!-- STEP 3 · Locations -->
+  <div class="card hide" data-step="2">
+    <div class="card-h">Locations &amp; service areas</div>
+    <p class="muted" style="margin-bottom:18px;">Where can your company deliver work? Provincial tenders outside your area can be filtered out.</p>
+    <div class="chip-grid" id="loc-grid">
+      <button type="button" class="chip-sel" data-v="Punjab">Punjab</button>
+      <button type="button" class="chip-sel" data-v="Sindh">Sindh</button>
+      <button type="button" class="chip-sel" data-v="Khyber Pakhtunkhwa">Khyber Pakhtunkhwa</button>
+      <button type="button" class="chip-sel" data-v="Balochistan">Balochistan</button>
+      <button type="button" class="chip-sel" data-v="Islamabad Capital Territory">Islamabad Capital Territory</button>
+      <button type="button" class="chip-sel" data-v="Azad Kashmir">Azad Kashmir</button>
+      <button type="button" class="chip-sel" data-v="Gilgit-Baltistan">Gilgit-Baltistan</button>
+      <button type="button" class="chip-sel" data-v="Nationwide">Nationwide</button>
+    </div>
+    <div class="actions"><button class="btn sec" onclick="prevStep()">← Back</button><button class="btn pri" onclick="nextStep()">Continue →</button></div>
+  </div>
+
+  <!-- STEP 4 · Registrations -->
+  <div class="card hide" data-step="3">
+    <div class="card-h">Registrations &amp; licences</div>
+    <p class="muted" style="margin-bottom:18px;">Add the registrations your company holds (PEC, PSEB, SECP, authority licences…).</p>
+    <div id="reg-list"></div>
+    <button class="btn sec sm" type="button" onclick="addReg()">+ Add registration</button>
+    <div class="actions">
+      <button class="btn sec" onclick="prevStep()">← Back</button>
+      <button class="btn pri" id="save-company" onclick="saveCompany()"><span class="spin"></span> Save &amp; Continue →</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+  (function () {
+    var B = window.BIDDOST;
+    B.guard("auth");
+
+    var user = null, companyId = null, step = 0;
+    var data = { name:"", legal_type:"", founded:"", registration_no:"", gst:"", description:"", categories:[], locations:[], registrations:[] };
+
+    function renderSteps() {
+      var steps = document.querySelectorAll(".steps .step");
+      steps.forEach(function (el, i) {
+        el.className = "step" + (i < step ? " done" : "") + (i === step ? " cur" : "");
+      });
+      document.querySelectorAll(".card[data-step]").forEach(function (el) {
+        el.classList.toggle("hide", parseInt(el.getAttribute("data-step"), 10) !== step);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function syncChips(gridId, arr) {
+      document.querySelectorAll("#" + gridId + " .chip-sel").forEach(function (el) {
+        el.classList.toggle("on", arr.indexOf(el.getAttribute("data-v")) !== -1);
+      });
+    }
+
+    window.addReg = function () {
+      data.registrations.push({ name: "", authority: "", number: "" });
+      renderRegs();
+    };
+    window.rmReg = function (i) {
+      data.registrations.splice(i, 1);
+      renderRegs();
+    };
+    function renderRegs() {
+      var list = document.getElementById("reg-list");
+      list.innerHTML = "";
+      data.registrations.forEach(function (r, i) {
+        var div = document.createElement("div");
+        div.className = "rep";
+        div.innerHTML =
+          '<input class="in" data-i="' + i + '" data-k="name" placeholder="Registration (e.g. PEC)" value="' + B.escape(r.name) + '">' +
+          '<input class="in" data-i="' + i + '" data-k="authority" placeholder="Issuing authority" value="' + B.escape(r.authority) + '">' +
+          '<button type="button" class="rm" onclick="rmReg(' + i + ')">✕</button>';
+        list.appendChild(div);
+      });
+    }
+    document.addEventListener("input", function (e) {
+      var i = e.target.getAttribute && e.target.getAttribute("data-i");
+      var k = e.target.getAttribute && e.target.getAttribute("data-k");
+      if (i !== null && k) data.registrations[+i][k] = e.target.value;
+    });
+
+    document.querySelectorAll(".chip-sel").forEach(function (el) {
+      el.addEventListener("click", function () {
+        var grid = el.parentElement.id;
+        var arr = grid === "cat-grid" ? data.categories : data.locations;
+        var v = el.getAttribute("data-v");
+        var idx = arr.indexOf(v);
+        if (idx === -1) arr.push(v); else arr.splice(idx, 1);
+        el.classList.toggle("on", idx === -1);
+      });
+    });
+
+    window.nextStep = function () {
+      if (step === 0) {
+        data.name = document.getElementById("c-name").value.trim();
+        data.legal_type = document.getElementById("c-type").value;
+        data.founded = document.getElementById("c-founding").value;
+        data.registration_no = document.getElementById("c-reg").value.trim();
+        data.gst = document.getElementById("c-gst").value.trim();
+        data.description = document.getElementById("c-desc").value.trim();
+        if (!data.name || !data.legal_type) { B.alert("form-alert", "danger", "Company name and legal type are required."); return; }
+      }
+      if (step < 3) { step++; renderSteps(); }
+    };
+    window.prevStep = function () { if (step > 0) { step--; renderSteps(); } };
+
+    window.saveCompany = function () {
+      var btn = document.getElementById("save-company");
+      B.setBusy(btn, true);
+      B.hideAlert("form-alert");
+      var payload = Object.assign({}, data);
+      payload.founded = payload.founded ? Number(payload.founded) : null;
+      B.saveCompany(user.id, payload).then(function (res) {
+        B.setBusy(btn, false);
+        if (res.error) {
+          B.alert("form-alert", "danger", "Save failed: " + res.error.message);
+          return;
+        }
+        B.go("capabilities.html");
+      }).catch(function (err) {
+        B.setBusy(btn, false);
+        B.alert("form-alert", "danger", "Save failed: " + (err.message || err));
+      });
+    };
+
+    B.user().then(function (u) {
+      user = u;
+      if (u && u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+      return B.getCompany(u.id);
+    }).then(function (res) {
+      if (res.error) { return; }
+      if (res.data) {
+        if (res.data.onboarding_complete) { B.go("tenders.html"); return; }
+        companyId = res.data.id;
+        data.name = res.data.name || "";
+        data.legal_type = res.data.legal_type || "";
+        data.founded = res.data.founded || "";
+        data.registration_no = res.data.registration_no || "";
+        data.gst = res.data.gst || "";
+        data.description = res.data.description || "";
+        data.categories = res.data.categories || [];
+        data.locations = res.data.locations || [];
+        data.registrations = res.data.registrations || [];
+        var stepNames = ["c-name","c-type","c-founding","c-reg","c-gst","c-desc"];
+        stepNames.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el && el.value === "") el.value = data[id] || data[id.replace("c-","")] || "";
+        });
+        document.getElementById("c-name").value = data.name;
+        document.getElementById("c-type").value = data.legal_type;
+        document.getElementById("c-founding").value = data.founded;
+        document.getElementById("c-reg").value = data.registration_no;
+        document.getElementById("c-gst").value = data.gst;
+        document.getElementById("c-desc").value = data.description;
+        syncChips("cat-grid", data.categories);
+        syncChips("loc-grid", data.locations);
+        renderRegs();
+      } else {
+        data.registrations.push({ name: "", authority: "", number: "" });
+        renderRegs();
+      }
+    });
+
+    renderSteps();
+  })();
+</script>
+</body>
+</html>

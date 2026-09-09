@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Password — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="auth">
+  <div class="panel">
+    <div class="brand"><span class="logo">B</span> BidDost AI</div>
+    <div>
+      <h1>We'll help you back in.</h1>
+      <p>Enter the email linked to your company account and we'll send a password reset link.</p>
+    </div>
+  </div>
+
+  <div class="form-side">
+    <div class="card">
+      <h2>Reset password</h2>
+      <p class="muted" style="margin:4px 0 20px;">No stress — it happens to everyone.</p>
+
+      <div id="form-alert" class="alert info" role="alert"></div>
+
+      <form id="reset-form" novalidate>
+        <div class="col">
+          <div>
+            <label class="lbl-f" for="email">Email</label>
+            <input class="in" id="email" type="email" placeholder="you@company.com" autocomplete="email" required>
+          </div>
+          <button class="btn pri full" type="submit"><span class="spin"></span> Send Reset Link</button>
+          <button class="btn sec full" type="button" onclick="window.location.href=BIDDOST.rel('login.html')">Back to Sign In</button>
+        </div>
+      </form>
+
+      <div class="auth-foot">Don't have an account? <a href="signup.html">Create one</a></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+  (function () {
+    var B = window.BIDDOST;
+    B.guard("guest");
+    var form = document.getElementById("reset-form");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = form.querySelector(".btn.pri");
+      var email = document.getElementById("email").value.trim();
+      if (!email) { B.alert("form-alert", "danger", "Enter your email address."); return; }
+
+      B.setBusy(btn, true);
+      B.hideAlert("form-alert");
+      B.sendReset(email).then(function (res) {
+        B.setBusy(btn, false);
+        if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+        B.alert("form-alert", "info", "If an account exists for " + email + ", a reset link is on its way. Check your inbox.");
+        form.reset();
+      });
+    });
+  })();
+</script>
+</body>
+</html>

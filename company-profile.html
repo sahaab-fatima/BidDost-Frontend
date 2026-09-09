@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company Profile — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">B</span> BidDost AI
+  <span class="lbl brand" style="font-size:11px;">COMPANY PROFILE</span>
+  <span class="right">
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button>
+    <span id="user-name"></span>
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button>
+  </span>
+</div>
+
+<div class="onboard">
+  <div id="form-alert" class="alert danger" role="alert"></div>
+  <div id="success-alert" class="alert success" role="alert"></div>
+
+  <div class="prof-head">
+    <div class="av" id="prof-avatar"></div>
+    <div class="info">
+      <h2 id="prof-name">Company Name</h2>
+      <div class="meta" id="prof-meta"></div>
+    </div>
+  </div>
+
+  <div class="tabs" id="profile-tabs">
+    <button class="tab on" data-tab="info">Company Info</button>
+    <button class="tab" data-tab="caps">Capabilities</button>
+    <button class="tab" data-tab="docs">Documents</button>
+  </div>
+
+  <!-- ==================== TAB: COMPANY INFO ==================== -->
+  <div class="tab-panel on" data-panel="info">
+    <div class="card">
+      <div class="card-h">Company information</div>
+      <p class="muted" style="margin-bottom:18px;">Update your company details. Changes are saved to your profile.</p>
+      <div class="form-grid">
+        <div class="full">
+          <label class="lbl-f" for="c-name">Company legal name *</label>
+          <input class="in" id="c-name" placeholder="e.g. Al-Rafiq Engineering (Pvt) Ltd" required>
+        </div>
+        <div>
+          <label class="lbl-f" for="c-type">Legal type *</label>
+          <select class="in" id="c-type">
+            <option value="">Select type…</option>
+            <option>Private Limited</option>
+            <option>Public Limited</option>
+            <option>Sole Proprietorship</option>
+            <option>Partnership</option>
+            <option>Joint Venture</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl-f" for="c-founding">Year founded</label>
+          <input class="in" id="c-founding" type="number" min="1950" max="2026" placeholder="e.g. 2012">
+        </div>
+        <div>
+          <label class="lbl-f" for="c-reg">Registration / NTN number</label>
+          <input class="in" id="c-reg" placeholder="e.g. NTN 89-012-3456">
+        </div>
+        <div>
+          <label class="lbl-f" for="c-gst">GST number</label>
+          <input class="in" id="c-gst" placeholder="e.g. GST 1234567">
+        </div>
+        <div class="full">
+          <label class="lbl-f" for="c-desc">Short description</label>
+          <textarea class="in" id="c-desc" placeholder="What does your company do? This helps the AI match tenders."></textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:22px;">
+        <div class="card-h" style="font-size:14px;">Business categories</div>
+        <p class="muted" style="margin-bottom:12px;">Select all categories you work in.</p>
+        <div class="chip-grid" id="cat-grid">
+          <button type="button" class="chip-sel" data-v="Construction">Construction</button>
+          <button type="button" class="chip-sel" data-v="Civil Works">Civil Works</button>
+          <button type="button" class="chip-sel" data-v="Electrical">Electrical</button>
+          <button type="button" class="chip-sel" data-v="IT / Software">IT / Software</button>
+          <button type="button" class="chip-sel" data-v="Telecom">Telecom</button>
+          <button type="button" class="chip-sel" data-v="Health / Medical">Health / Medical</button>
+          <button type="button" class="chip-sel" data-v="Supply &amp; Procurement">Supply &amp; Procurement</button>
+          <button type="button" class="chip-sel" data-v="Transport &amp; Logistics">Transport &amp; Logistics</button>
+          <button type="button" class="chip-sel" data-v="Consulting">Consulting</button>
+          <button type="button" class="chip-sel" data-v="Furniture &amp; Fixtures">Furniture &amp; Fixtures</button>
+          <button type="button" class="chip-sel" data-v="Printing &amp; Stationery">Printing &amp; Stationery</button>
+          <button type="button" class="chip-sel" data-v="Security Services">Security Services</button>
+        </div>
+      </div>
+
+      <div style="margin-top:22px;">
+        <div class="card-h" style="font-size:14px;">Locations &amp; service areas</div>
+        <p class="muted" style="margin-bottom:12px;">Where can your company deliver work?</p>
+        <div class="chip-grid" id="loc-grid">
+          <button type="button" class="chip-sel" data-v="Punjab">Punjab</button>
+          <button type="button" class="chip-sel" data-v="Sindh">Sindh</button>
+          <button type="button" class="chip-sel" data-v="Khyber Pakhtunkhwa">Khyber Pakhtunkhwa</button>
+          <button type="button" class="chip-sel" data-v="Balochistan">Balochistan</button>
+          <button type="button" class="chip-sel" data-v="Islamabad Capital Territory">Islamabad Capital Territory</button>
+          <button type="button" class="chip-sel" data-v="Azad Kashmir">Azad Kashmir</button>
+          <button type="button" class="chip-sel" data-v="Gilgit-Baltistan">Gilgit-Baltistan</button>
+          <button type="button" class="chip-sel" data-v="Nationwide">Nationwide</button>
+        </div>
+      </div>
+
+      <div style="margin-top:22px;">
+        <div class="card-h" style="font-size:14px;">Registrations &amp; licences</div>
+        <p class="muted" style="margin-bottom:12px;">Add the registrations your company holds.</p>
+        <div id="reg-list"></div>
+        <button class="btn sec sm" type="button" onclick="addReg()">+ Add registration</button>
+      </div>
+
+      <div class="actions">
+        <span></span>
+        <button class="btn pri" id="save-info" onclick="saveInfo()"><span class="spin"></span> Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TAB: CAPABILITIES ==================== -->
+  <div class="tab-panel" data-panel="caps">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-h" id="cap-form-title">Add a capability</div>
+      <p class="muted" style="margin-bottom:18px;">Define what your company can deliver and up to what value.</p>
+      <div class="form-grid">
+        <div>
+          <label class="lbl-f" for="cap-cat">Category *</label>
+          <select class="in" id="cap-cat">
+            <option value="">Select category…</option>
+            <option>Construction</option><option>Civil Works</option><option>Electrical</option>
+            <option>IT / Software</option><option>Telecom</option><option>Health / Medical</option>
+            <option>Supply &amp; Procurement</option><option>Transport &amp; Logistics</option>
+            <option>Consulting</option><option>Furniture &amp; Fixtures</option><option>Security Services</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl-f" for="cap-product">Product / service *</label>
+          <input class="in" id="cap-product" placeholder="e.g. Road construction &amp; bridges">
+        </div>
+        <div>
+          <label class="lbl-f" for="cap-value">Max contract value (PKR)</label>
+          <input class="in" id="cap-value" type="number" placeholder="e.g. 150000000">
+        </div>
+        <div>
+          <label class="lbl-f" for="cap-years">Years of experience</label>
+          <input class="in" id="cap-years" type="number" min="0" max="60" placeholder="e.g. 8">
+        </div>
+      </div>
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <button class="btn pri" id="add-cap" onclick="addCap()"><span class="spin"></span> + Add capability</button>
+        <button class="btn sec hide" id="cancel-cap" onclick="cancelCapEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">Your capabilities <span class="lbl gray" id="cap-count">0</span></div>
+      <div id="cap-list"></div>
+      <div class="empty hide" id="cap-empty">
+        <div class="big">🛠</div>
+        Add your first capability above to start matching tenders.
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TAB: DOCUMENTS ==================== -->
+  <div class="tab-panel" data-panel="docs">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-h" id="cert-form-title">Add a document</div>
+      <p class="muted" style="margin-bottom:18px;">Track certificates and expiry dates. The eligibility checker uses these as evidence.</p>
+      <div class="form-grid">
+        <div>
+          <label class="lbl-f" for="cert-type">Certificate / document type *</label>
+          <select class="in" id="cert-type">
+            <option value="">Select type…</option>
+            <option>PEC Registration</option>
+            <option>PSEB Registration</option>
+            <option>SECP Certificate</option>
+            <option>ISO Certification</option>
+            <option>Tax Exemption Certificate</option>
+            <option>Bank Guarantee / Bid Bond</option>
+            <option>Business / Trade Licence</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl-f" for="cert-expiry">Expiry date</label>
+          <input class="in" id="cert-expiry" type="date">
+        </div>
+        <div class="full">
+          <label class="lbl-f">Document file (optional)</label>
+          <label class="upload" id="upload-label">
+            <span id="upload-name">Click to upload PDF / image</span>
+            <input class="file" id="cert-file" type="file" accept=".pdf,.png,.jpg,.jpeg">
+          </label>
+        </div>
+      </div>
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <button class="btn pri" id="add-cert" onclick="addCert()"><span class="spin"></span> + Add document</button>
+        <button class="btn sec hide" id="cancel-cert" onclick="cancelCertEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">Your documents <span class="lbl gray" id="cert-count">0</span></div>
+      <div id="cert-list"></div>
+      <div class="empty hide" id="cert-empty">
+        <div class="big">📁</div>
+        No documents yet. Add certificates so the eligibility checker can use them.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+<script>
+(function () {
+  var B = window.BIDDOST;
+  B.guard("auth");
+
+  var user = null, companyId = null;
+  var data = { name:"", legal_type:"", founded:"", registration_no:"", gst:"", description:"", categories:[], locations:[], registrations:[] };
+  var editingCapId = null;
+  var editingCertId = null;
+  var pendingFile = null;
+
+  /* ====== Tabs ====== */
+  document.querySelectorAll("#profile-tabs .tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      document.querySelectorAll("#profile-tabs .tab").forEach(function (t) { t.classList.remove("on"); });
+      document.querySelectorAll(".tab-panel").forEach(function (p) { p.classList.remove("on"); });
+      tab.classList.add("on");
+      document.querySelector('.tab-panel[data-panel="' + tab.getAttribute("data-tab") + '"]').classList.add("on");
+    });
+  });
+
+  /* ====== Chip sync ====== */
+  function syncChips(gridId, arr) {
+    document.querySelectorAll("#" + gridId + " .chip-sel").forEach(function (el) {
+      el.classList.toggle("on", arr.indexOf(el.getAttribute("data-v")) !== -1);
+    });
+  }
+
+  document.querySelectorAll(".chip-sel").forEach(function (el) {
+    el.addEventListener("click", function () {
+      var grid = el.parentElement.id;
+      var arr = grid === "cat-grid" ? data.categories : data.locations;
+      var v = el.getAttribute("data-v");
+      var idx = arr.indexOf(v);
+      if (idx === -1) arr.push(v); else arr.splice(idx, 1);
+      el.classList.toggle("on", idx === -1);
+    });
+  });
+
+  /* ====== Registrations ====== */
+  window.addReg = function () {
+    data.registrations.push({ name: "", authority: "", number: "" });
+    renderRegs();
+  };
+  window.rmReg = function (i) {
+    data.registrations.splice(i, 1);
+    renderRegs();
+  };
+  function renderRegs() {
+    var list = document.getElementById("reg-list");
+    list.innerHTML = "";
+    data.registrations.forEach(function (r, i) {
+      var div = document.createElement("div");
+      div.className = "rep";
+      div.innerHTML =
+        '<input class="in" data-i="' + i + '" data-k="name" placeholder="Registration (e.g. PEC)" value="' + B.escape(r.name) + '">' +
+        '<input class="in" data-i="' + i + '" data-k="authority" placeholder="Issuing authority" value="' + B.escape(r.authority) + '">' +
+        '<button type="button" class="rm" onclick="rmReg(' + i + ')">✕</button>';
+      list.appendChild(div);
+    });
+  }
+  document.addEventListener("input", function (e) {
+    var i = e.target.getAttribute && e.target.getAttribute("data-i");
+    var k = e.target.getAttribute && e.target.getAttribute("data-k");
+    if (i !== null && k) data.registrations[+i][k] = e.target.value;
+  });
+
+  /* ====== Profile header ====== */
+  function renderHeader() {
+    var initials = (data.name || "C").split(" ").map(function (w) { return w.charAt(0); }).join("").substring(0, 2).toUpperCase();
+    document.getElementById("prof-avatar").textContent = initials;
+    document.getElementById("prof-name").textContent = data.name || "Company Name";
+    var parts = [];
+    if (data.legal_type) parts.push(data.legal_type);
+    if (data.founded) parts.push("Est. " + data.founded);
+    if (data.categories && data.categories.length) parts.push(data.categories.length + " categories");
+    document.getElementById("prof-meta").textContent = parts.join(" · ");
+  }
+
+  /* ====== Save company info ====== */
+  window.saveInfo = function () {
+    data.name = document.getElementById("c-name").value.trim();
+    data.legal_type = document.getElementById("c-type").value;
+    data.founded = document.getElementById("c-founding").value;
+    data.registration_no = document.getElementById("c-reg").value.trim();
+    data.gst = document.getElementById("c-gst").value.trim();
+    data.description = document.getElementById("c-desc").value.trim();
+
+    if (!data.name || !data.legal_type) { B.alert("form-alert", "danger", "Company name and legal type are required."); return; }
+
+    var btn = document.getElementById("save-info");
+    B.setBusy(btn, true);
+    B.hideAlert("form-alert");
+    B.hideAlert("success-alert");
+
+    var payload = {
+      name: data.name,
+      legal_type: data.legal_type,
+      founded: data.founded ? Number(data.founded) : null,
+      registration_no: data.registration_no,
+      gst: data.gst,
+      description: data.description,
+      categories: data.categories,
+      locations: data.locations,
+      registrations: data.registrations
+    };
+
+    B.updateCompany(user.id, payload).then(function (res) {
+      B.setBusy(btn, false);
+      if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+      renderHeader();
+      B.alert("success-alert", "success", "Company profile updated successfully.");
+    });
+  };
+
+  /* ====== Capabilities ====== */
+  window.addCap = function () {
+    var cat = document.getElementById("cap-cat").value;
+    var product = document.getElementById("cap-product").value.trim();
+    var value = document.getElementById("cap-value").value;
+    var years = document.getElementById("cap-years").value;
+
+    if (!cat || !product) { B.alert("form-alert", "danger", "Category and product/service are required."); return; }
+
+    var btn = document.getElementById("add-cap");
+    B.setBusy(btn, true);
+    B.hideAlert("form-alert");
+    B.hideAlert("success-alert");
+
+    var capData = {
+      category: cat,
+      product: product,
+      max_value: value ? Number(value) : null,
+      years_experience: years ? Number(years) : null
+    };
+
+    var action;
+    if (editingCapId) {
+      action = B.updateCapability(editingCapId, capData);
+    } else {
+      action = B.addCapability(companyId, capData);
+    }
+
+    action.then(function (res) {
+      B.setBusy(btn, false);
+      if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+      clearCapForm();
+      loadCaps();
+      B.alert("success-alert", "success", editingCapId ? "Capability updated." : "Capability added.");
+      editingCapId = null;
+    });
+  };
+
+  window.cancelCapEdit = function () {
+    clearCapForm();
+    editingCapId = null;
+  };
+
+  function clearCapForm() {
+    document.getElementById("cap-cat").value = "";
+    document.getElementById("cap-product").value = "";
+    document.getElementById("cap-value").value = "";
+    document.getElementById("cap-years").value = "";
+    document.getElementById("cap-form-title").textContent = "Add a capability";
+    document.getElementById("add-cap").innerHTML = '<span class="spin"></span> + Add capability';
+    document.getElementById("cancel-cap").classList.add("hide");
+  }
+
+  window.editCap = function (id) {
+    B.listCapabilities(companyId).then(function (res) {
+      if (res.error || !res.data) return;
+      var cap = res.data.find(function (c) { return c.id === id; });
+      if (!cap) return;
+      editingCapId = id;
+      document.getElementById("cap-cat").value = cap.category;
+      document.getElementById("cap-product").value = cap.product;
+      document.getElementById("cap-value").value = cap.max_value || "";
+      document.getElementById("cap-years").value = cap.years_experience || "";
+      document.getElementById("cap-form-title").textContent = "Edit capability";
+      document.getElementById("add-cap").innerHTML = '<span class="spin"></span> Update capability';
+      document.getElementById("cancel-cap").classList.remove("hide");
+      document.querySelector('.tab-panel[data-panel="caps"]').scrollIntoView({ behavior: "smooth" });
+    });
+  };
+
+  window.rmCap = function (id) {
+    B.removeCapability(id).then(function (res) {
+      if (!res.error) {
+        loadCaps();
+        B.alert("success-alert", "success", "Capability removed.");
+      }
+    });
+  };
+
+  function loadCaps() {
+    B.listCapabilities(companyId).then(function (res) {
+      if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+      var list = res.data || [];
+      document.getElementById("cap-count").textContent = list.length;
+      document.getElementById("cap-empty").classList.toggle("hide", list.length > 0);
+
+      var box = document.getElementById("cap-list");
+      box.innerHTML = "";
+      list.forEach(function (c) {
+        var row = document.createElement("div");
+        row.className = "list-row";
+        row.innerHTML =
+          '<div class="grow"><b>' + B.escape(c.category) + ' — ' + B.escape(c.product) + '</b>' +
+          '<span>Max value: ' + (c.max_value ? "PKR " + Number(c.max_value).toLocaleString() : "—") +
+          ' · Experience: ' + (c.years_experience ? c.years_experience + " yrs" : "—") + '</span></div>' +
+          '<button class="btn sec sm" onclick="editCap(\'' + c.id + '\')">Edit</button> ' +
+          '<button class="del" onclick="rmCap(\'' + c.id + '\')">✕</button>';
+        box.appendChild(row);
+      });
+    });
+  }
+
+  /* ====== Certificates ====== */
+  document.getElementById("cert-file").addEventListener("change", function (e) {
+    var f = e.target.files && e.target.files[0];
+    pendingFile = f || null;
+    document.getElementById("upload-name").textContent = f ? f.name : "Click to upload PDF / image";
+  });
+
+  window.addCert = function () {
+    var type = document.getElementById("cert-type").value;
+    var expiry = document.getElementById("cert-expiry").value;
+    if (!type) { B.alert("form-alert", "danger", "Select a certificate type."); return; }
+
+    var btn = document.getElementById("add-cert");
+    B.setBusy(btn, true);
+    B.hideAlert("form-alert");
+    B.hideAlert("success-alert");
+
+    var certData = { type: type, expiry_date: expiry || null };
+
+    function save(filePath) {
+      if (filePath) certData.file_path = filePath;
+      var action;
+      if (editingCertId) {
+        action = B.updateCertificate(editingCertId, certData);
+      } else {
+        action = B.addCertificate(companyId, certData);
+      }
+      return action.then(function (res) {
+        B.setBusy(btn, false);
+        if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+        clearCertForm();
+        loadCerts();
+        B.alert("success-alert", "success", editingCertId ? "Document updated." : "Document added.");
+        editingCertId = null;
+      });
+    }
+
+    if (pendingFile) {
+      B.uploadDocument(pendingFile).then(function (path) {
+        return save(path);
+      }).catch(function (err) {
+        B.setBusy(btn, false);
+        B.alert("form-alert", "warn", "File upload failed (" + (err.message || "storage not configured") + "). Saved without file.");
+        save(null);
+      });
+    } else if (editingCertId) {
+      save(null);
+    } else {
+      save(null);
+    }
+  };
+
+  window.cancelCertEdit = function () {
+    clearCertForm();
+    editingCertId = null;
+  };
+
+  function clearCertForm() {
+    document.getElementById("cert-type").value = "";
+    document.getElementById("cert-expiry").value = "";
+    document.getElementById("cert-file").value = "";
+    pendingFile = null;
+    document.getElementById("upload-name").textContent = "Click to upload PDF / image";
+    document.getElementById("cert-form-title").textContent = "Add a document";
+    document.getElementById("add-cert").innerHTML = '<span class="spin"></span> + Add document';
+    document.getElementById("cancel-cert").classList.add("hide");
+  }
+
+  window.editCert = function (id) {
+    B.listCertificates(companyId).then(function (res) {
+      if (res.error || !res.data) return;
+      var cert = res.data.find(function (c) { return c.id === id; });
+      if (!cert) return;
+      editingCertId = id;
+      document.getElementById("cert-type").value = cert.type;
+      document.getElementById("cert-expiry").value = cert.expiry_date || "";
+      if (cert.file_path) {
+        document.getElementById("upload-name").textContent = cert.file_path.split("/").pop();
+      }
+      document.getElementById("cert-form-title").textContent = "Edit document";
+      document.getElementById("add-cert").innerHTML = '<span class="spin"></span> Update document';
+      document.getElementById("cancel-cert").classList.remove("hide");
+      document.querySelector('.tab-panel[data-panel="docs"]').scrollIntoView({ behavior: "smooth" });
+    });
+  };
+
+  window.rmCert = function (id) {
+    B.removeCertificate(id).then(function (res) {
+      if (!res.error) {
+        loadCerts();
+        B.alert("success-alert", "success", "Document removed.");
+      }
+    });
+  };
+
+  window.viewCert = function (path) {
+    if (!path) return;
+    var res = B.getStorageUrl(path);
+    var url = res && res.data ? res.data.publicUrl : null;
+    if (url) window.open(url, "_blank");
+  };
+
+  function loadCerts() {
+    B.listCertificates(companyId).then(function (res) {
+      if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+      var list = res.data || [];
+      document.getElementById("cert-count").textContent = list.length;
+      document.getElementById("cert-empty").classList.toggle("hide", list.length > 0);
+
+      var box = document.getElementById("cert-list");
+      box.innerHTML = "";
+      list.forEach(function (c) {
+        var st = B.expiryStatus(c.expiry_date);
+        var row = document.createElement("div");
+        row.className = "list-row";
+        row.innerHTML =
+          '<div class="grow"><b>' + B.escape(c.type) + '</b>' +
+          '<span>' + (c.expiry_date ? "Expires " + c.expiry_date : "No expiry set") +
+          (c.file_path ? ' · 📎 attached' : "") + '</span></div>' +
+          '<span class="' + st.cls + '">' + st.label + '</span>' +
+          (c.file_path ? '<button class="btn sec sm" onclick="viewCert(\'' + B.escape(c.file_path) + '\')">View</button>' : '') +
+          '<button class="btn sec sm" onclick="editCert(\'' + c.id + '\')">Edit</button> ' +
+          '<button class="del" onclick="rmCert(\'' + c.id + '\')">✕</button>';
+        box.appendChild(row);
+      });
+    });
+  }
+
+  /* ====== Init ====== */
+  B.user().then(function (u) {
+    user = u;
+    if (u && u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+    return B.getCompany(u.id);
+  }).then(function (res) {
+    if (res.error || !res.data) { B.go("company-setup.html"); return; }
+    companyId = res.data.id;
+    data.name = res.data.name || "";
+    data.legal_type = res.data.legal_type || "";
+    data.founded = res.data.founded || "";
+    data.registration_no = res.data.registration_no || "";
+    data.gst = res.data.gst || "";
+    data.description = res.data.description || "";
+    data.categories = res.data.categories || [];
+    data.locations = res.data.locations || [];
+    data.registrations = res.data.registrations || [];
+
+    document.getElementById("c-name").value = data.name;
+    document.getElementById("c-type").value = data.legal_type;
+    document.getElementById("c-founding").value = data.founded;
+    document.getElementById("c-reg").value = data.registration_no;
+    document.getElementById("c-gst").value = data.gst;
+    document.getElementById("c-desc").value = data.description;
+    syncChips("cat-grid", data.categories);
+    syncChips("loc-grid", data.locations);
+    renderRegs();
+    renderHeader();
+    loadCaps();
+    loadCerts();
+  });
+})();
+</script>
+</body>
+</html>

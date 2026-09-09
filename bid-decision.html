@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bid Decision — BidDost AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css?v=2">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">B</span> BidDost AI
+  <span class="lbl brand" style="font-size:11px;">BID DECISION</span>
+  <span class="right">
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button>
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button>
+    <span id="user-name"></span>
+    <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button>
+  </span>
+</div>
+
+<div class="onboard">
+  <div id="form-alert" class="alert danger" role="alert"></div>
+  <div id="success-alert" class="alert success" role="alert"></div>
+
+  <!-- Back link -->
+  <div style="margin-bottom:12px;">
+    <button class="btn ghost sm" onclick="goBack()">← Back to Tender Detail</button>
+  </div>
+
+  <!-- Tender info bar -->
+  <div class="detail-hdr" id="tender-bar" style="padding:14px 18px; margin-bottom:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <div>
+        <div style="font-family:var(--font-heading); font-weight:700; font-size:16px; color:var(--neutral-800);" id="d-title">Loading…</div>
+        <div style="font-size:12px; color:var(--neutral-500);" id="d-meta">—</div>
+      </div>
+      <div id="d-decision-badge"></div>
+    </div>
+  </div>
+
+  <!-- Overall Decision Score -->
+  <div class="decision-score" id="decision-score-card">
+    <div class="big-score" id="overall-score">—</div>
+    <div class="score-label">Overall Decision Score</div>
+    <div class="scorebar" id="overall-bar" style="width:200px; height:8px; margin:10px auto 0;"><i id="overall-fill" style="width:0%"></i></div>
+    <div class="score-rec" id="recommendation">—</div>
+  </div>
+
+  <!-- Factor breakdown -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-h">Decision Breakdown</div>
+    <p class="muted" style="margin-bottom:14px;">Each factor is weighted and scored to produce the overall recommendation.</p>
+    <div class="factor-grid" id="factor-grid"></div>
+  </div>
+
+  <!-- Two-column: Risks + Missing Records -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+    <!-- Risk factors -->
+    <div class="card">
+      <div class="card-h">Risk Factors <span class="lbl gray" id="risk-count">0</span></div>
+      <div id="risk-list" class="risk-list"></div>
+      <div class="empty hide" id="risk-empty" style="padding:16px;">
+        <div style="font-size:24px; margin-bottom:6px;">🛡</div>
+        <div style="font-size:12px;">No risk flags identified.</div>
+      </div>
+    </div>
+
+    <!-- Missing records -->
+    <div class="card">
+      <div class="card-h">Missing Records <span class="lbl gray" id="missing-count">0</span></div>
+      <div id="missing-list" class="missing-list"></div>
+      <div class="empty hide" id="missing-empty" style="padding:16px;">
+        <div style="font-size:24px; margin-bottom:6px;">✅</div>
+        <div style="font-size:12px;">All records accounted for.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Eligibility matrix -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-h">Eligibility Matrix</div>
+    <p class="muted" style="margin-bottom:12px;">Summary of eligibility criteria status.</p>
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;" id="elig-matrix">
+      <div class="kpi"><div class="num teal" id="em-pass">0</div><div class="lab">Passing</div></div>
+      <div class="kpi"><div class="num red" id="em-fail">0</div><div class="lab">Failing</div></div>
+      <div class="kpi"><div class="num amber" id="em-unclear">0</div><div class="lab">Unclear</div></div>
+    </div>
+    <div id="elig-summary" style="margin-top:12px; font-size:13px; color:var(--neutral-600);"></div>
+  </div>
+
+  <!-- Decision actions -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-h">Your Decision</div>
+    <p class="muted" style="margin-bottom:14px;">Select a decision and add comments for the team.</p>
+
+    <div class="action-grid" id="action-grid">
+      <div class="action-btn bid" data-decision="Bid" onclick="selectDecision('Bid')">
+        <div class="a-icon">✓</div>
+        <div class="a-label">Bid</div>
+        <div class="a-desc">Proceed with tender submission</div>
+      </div>
+      <div class="action-btn nobid" data-decision="No-Bid" onclick="selectDecision('No-Bid')">
+        <div class="a-icon">✗</div>
+        <div class="a-label">No-Bid</div>
+        <div class="a-desc">Do not submit</div>
+      </div>
+      <div class="action-btn hold" data-decision="Hold" onclick="selectDecision('Hold')">
+        <div class="a-icon">⏸</div>
+        <div class="a-label">Hold</div>
+        <div class="a-desc">Defer decision pending review</div>
+      </div>
+      <div class="action-btn info" data-decision="Need More Info" onclick="selectDecision('Need More Info')">
+        <div class="a-icon">?</div>
+        <div class="a-label">Need More Info</div>
+        <div class="a-desc">Request additional details</div>
+      </div>
+    </div>
+
+    <div class="comment-box">
+      <label style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--neutral-500); margin-bottom:6px; display:block;">Decision Comment</label>
+      <textarea id="decision-comment" placeholder="Explain the reasoning behind this decision…"></textarea>
+      <div class="char-count"><span id="char-count">0</span> / 500</div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <button class="btn sec" onclick="goBack()">← Cancel</button>
+      <button class="btn pri" id="save-decision-btn" onclick="saveDecision()"><span class="spin"></span> Save Decision</button>
+    </div>
+  </div>
+
+  <!-- Decision history -->
+  <div class="card" id="history-card" style="display:none;">
+    <div class="card-h">Decision History</div>
+    <div id="decision-history" class="decision-history"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=3"></script>
+<script src="js/app.js?v=11"></script>
+<script>
+(function () {
+  var B = window.BIDDOST;
+  B.guard("auth");
+
+  var user = null, companyId = null, tenderId = null, tender = null;
+  var selectedDecision = null;
+  var decisionScore = null;
+
+  /* ====== Load tender ====== */
+  function loadTender() {
+    var params = new URLSearchParams(window.location.search);
+    tenderId = params.get("id");
+    if (!tenderId) { B.go("tenders.html"); return; }
+
+    B.getTender(tenderId).then(function (res) {
+      if (res.error || !res.data) { B.alert("form-alert", "danger", "Tender not found."); return; }
+      tender = res.data;
+      renderTenderBar();
+      computeAndRender();
+      loadExistingDecision();
+    });
+  }
+
+  /* ====== Render tender bar ====== */
+  function renderTenderBar() {
+    document.getElementById("d-title").textContent = tender.title;
+    var meta = [];
+    if (tender.organisation) meta.push(tender.organisation);
+    if (tender.reference) meta.push("Ref " + tender.reference);
+    meta.push(tender.level);
+    if (tender.value_pkr) meta.push("PKR " + Number(tender.value_pkr).toLocaleString());
+    document.getElementById("d-meta").textContent = meta.join(" · ");
+    document.title = "Bid Decision — " + tender.title;
+  }
+
+  /* ====== Compute decision score ====== */
+  function computeAndRender() {
+    if (!companyId) return;
+
+    Promise.all([
+      B.listCapabilities(companyId),
+      B.listCertificates(companyId)
+    ]).then(function (results) {
+      var caps = results[0].data || [];
+      var certs = results[1].data || [];
+      var elig = tender.eligibility_data || {};
+
+      decisionScore = B.computeDecisionScore(tender, elig, caps, certs);
+      renderScore();
+      renderFactors();
+      renderRisks();
+      renderMissing();
+      renderEligMatrix();
+    });
+  }
+
+  /* ====== Render overall score ====== */
+  function renderScore() {
+    var ds = decisionScore;
+    var colorClass = ds.overall >= 70 ? "teal" : ds.overall >= 50 ? "amber" : ds.overall >= 30 ? "red" : "red";
+    document.getElementById("overall-score").textContent = ds.overall + "%";
+    document.getElementById("overall-score").className = "big-score " + colorClass;
+
+    var barClass = ds.overall >= 70 ? "hi" : ds.overall >= 50 ? "mid" : "low";
+    document.getElementById("overall-bar").className = "scorebar " + barClass;
+    document.getElementById("overall-fill").style.width = ds.overall + "%";
+
+    var recColors = { "BID": "var(--color-teal)", "CONDITIONAL": "var(--color-amber)", "HOLD": "var(--color-amber)", "NO-BID": "var(--color-danger)" };
+    document.getElementById("recommendation").textContent = "Recommendation: " + ds.recommendation;
+    document.getElementById("recommendation").style.color = recColors[ds.recommendation] || "var(--neutral-600)";
+  }
+
+  /* ====== Render factors ====== */
+  function renderFactors() {
+    var box = document.getElementById("factor-grid");
+    box.innerHTML = "";
+    decisionScore.factors.forEach(function (f) {
+      var colorClass = f.status === "pass" ? "teal" : f.status === "review" ? "amber" : "red";
+      var barColor = f.status === "pass" ? "var(--color-teal)" : f.status === "review" ? "var(--color-amber)" : "var(--color-danger)";
+
+      var card = document.createElement("div");
+      card.className = "factor-card " + f.status;
+      card.innerHTML =
+        '<div class="f-label">' + f.label + '</div>' +
+        '<div class="f-score ' + colorClass + '">' + f.score + '%</div>' +
+        '<div class="f-weight">Weight: ' + f.weight + '%</div>' +
+        '<div class="f-detail">' + f.detail + '</div>' +
+        '<div class="f-bar"><div class="fill" style="width:' + f.score + '%; background:' + barColor + ';"></div></div>';
+      box.appendChild(card);
+    });
+  }
+
+  /* ====== Render risks ====== */
+  function renderRisks() {
+    var risks = decisionScore.risks;
+    document.getElementById("risk-count").textContent = risks.length;
+    document.getElementById("risk-empty").classList.toggle("hide", risks.length > 0);
+
+    var box = document.getElementById("risk-list");
+    box.innerHTML = "";
+    risks.forEach(function (r) {
+      var div = document.createElement("div");
+      div.className = "risk-item";
+      div.innerHTML = '<div class="r-icon">⚠️</div><div class="r-text">' + B.escape(r) + '</div>';
+      box.appendChild(div);
+    });
+  }
+
+  /* ====== Render missing ====== */
+  function renderMissing() {
+    var missing = decisionScore.missingRecords;
+    document.getElementById("missing-count").textContent = missing.length;
+    document.getElementById("missing-empty").classList.toggle("hide", missing.length > 0);
+
+    var box = document.getElementById("missing-list");
+    box.innerHTML = "";
+    missing.forEach(function (m) {
+      var div = document.createElement("div");
+      div.className = "missing-item";
+      div.innerHTML =
+        '<div class="m-icon">📋</div>' +
+        '<div class="m-body">' +
+        '<div class="m-text">' + B.escape(m.requirement) + '</div>' +
+        '<div class="m-hint">' + B.escape(m.profile_value) + '</div>' +
+        '</div>';
+      box.appendChild(div);
+    });
+  }
+
+  /* ====== Render eligibility matrix ====== */
+  function renderEligMatrix() {
+    var elig = tender.eligibility_data || {};
+    document.getElementById("em-pass").textContent = elig.passCount || 0;
+    document.getElementById("em-fail").textContent = elig.failCount || 0;
+    document.getElementById("em-unclear").textContent = elig.unclearCount || 0;
+
+    var total = (elig.passCount || 0) + (elig.failCount || 0) + (elig.unclearCount || 0);
+    if (total > 0) {
+      document.getElementById("elig-summary").textContent =
+        elig.passCount + " of " + total + " criteria are passing." +
+        (elig.failCount > 0 ? " " + elig.failCount + " require attention." : "") +
+        (elig.unclearCount > 0 ? " " + elig.unclearCount + " need additional evidence." : "");
+    } else {
+      document.getElementById("elig-summary").textContent = "Run eligibility check from the tender detail page first.";
+    }
+  }
+
+  /* ====== Decision selection ====== */
+  window.selectDecision = function (d) {
+    selectedDecision = d;
+    document.querySelectorAll(".action-btn").forEach(function (btn) {
+      btn.classList.toggle("selected", btn.getAttribute("data-decision") === d);
+    });
+  };
+
+  /* ====== Comment char count ====== */
+  document.getElementById("decision-comment").addEventListener("input", function (e) {
+    var len = e.target.value.length;
+    document.getElementById("char-count").textContent = len;
+    if (len > 500) e.target.value = e.target.value.substring(0, 500);
+  });
+
+  /* ====== Save decision ====== */
+  window.saveDecision = function () {
+    if (!selectedDecision) { B.alert("form-alert", "danger", "Select a decision (Bid, No-Bid, Hold, or Need More Info)."); return; }
+    if (!companyId || !tenderId) return;
+
+    var comment = document.getElementById("decision-comment").value.trim();
+    var btn = document.getElementById("save-decision-btn");
+    B.setBusy(btn, true);
+    B.hideAlert("form-alert");
+
+    var decisionData = {
+      decision: selectedDecision,
+      comment: comment,
+      score: decisionScore ? decisionScore.overall : null,
+      recommendation: decisionScore ? decisionScore.recommendation : null,
+      factors: decisionScore ? decisionScore.factors : [],
+      timestamp: new Date().toISOString()
+    };
+
+    B.saveDecision(companyId, tenderId, decisionData).then(function (res) {
+      B.setBusy(btn, false);
+      if (res.error) { B.alert("form-alert", "danger", res.error.message); return; }
+      B.alert("success-alert", "success", "Decision saved: " + selectedDecision);
+      renderDecisionBadge();
+      loadExistingDecision();
+    });
+  };
+
+  /* ====== Load existing decision ====== */
+  function loadExistingDecision() {
+    if (!companyId || !tenderId) return;
+    B.getDecision(companyId, tenderId).then(function (res) {
+      if (res.data && res.data.team_decision) {
+        var d = res.data;
+        selectedDecision = d.team_decision;
+        document.querySelectorAll(".action-btn").forEach(function (btn) {
+          btn.classList.toggle("selected", btn.getAttribute("data-decision") === selectedDecision);
+        });
+        if (d.team_note) document.getElementById("decision-comment").value = d.team_note;
+        if (d.decision_data) {
+          var dd = d.decision_data;
+          if (dd.comment) document.getElementById("decision-comment").value = dd.comment;
+          document.getElementById("char-count").textContent = (dd.comment || "").length;
+        }
+        renderDecisionBadge();
+      }
+    });
+  }
+
+  function renderDecisionBadge() {
+    var badge = B.decisionLabel(selectedDecision);
+    document.getElementById("d-decision-badge").innerHTML = '<span class="' + badge.cls + '" style="font-size:13px; padding:6px 16px;">' + badge.label + '</span>';
+  }
+
+  /* ====== Navigation ====== */
+  window.goBack = function () {
+    BIDDOST.go("tender-detail.html?id=" + tenderId);
+  };
+
+  /* ====== Init ====== */
+  var params = new URLSearchParams(window.location.search);
+  tenderId = params.get("id");
+  if (!tenderId) { B.go("tenders.html"); return; }
+
+  B.user().then(function (u) {
+    user = u;
+    if (!u) { B.go("login.html"); return; }
+    if (u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+    return B.getCompany(u.id);
+  }).then(function (res) {
+    if (res && res.data) companyId = res.data.id;
+    loadTender();
+  }).catch(function () {
+    loadTender();
+  });
+})();
+</script>
+</body>
+</html>
