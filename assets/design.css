@@ -434,6 +434,7 @@ select.in{appearance:none; background-image:url("data:image/svg+xml;charset=UTF-
   .grid-2{grid-template-columns:1fr !important;}
   .detail-header .t-actions{flex-wrap:wrap;}
   .tab-bar{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .summary-grid{grid-template-columns:1fr !important;}
 }
 
 /* ---------- Responsive: Mobile ---------- */
@@ -456,7 +457,21 @@ select.in{appearance:none; background-image:url("data:image/svg+xml;charset=UTF-
   .kpi .num{font-size:22px !important;}
   .match-breakdown div{font-size:12px;}
   .decision-card{padding:10px !important;}
-  #key-facts-grid{grid-template-columns:1fr 1fr !important;}
+  #key-facts-grid{grid-template-columns:1fr !important;}
+  .topbar{padding:10px 12px !important; font-size:13px !important; gap:8px !important;}
+  .topbar .right{gap:6px !important; font-size:11px !important;}
+  .topbar .right .btn{padding:4px 8px !important; font-size:10px !important;}
+  .topbar .lbl.brand{display:none !important;}
+  .onboard{padding:12px 10px !important;}
+  .filter-bar{flex-direction:column !important;}
+  .filter-bar .search,.filter-bar select{width:100% !important;}
+  .summary-grid{grid-template-columns:1fr !important;}
+  .elig-tbl{font-size:12px !important;}
+  .elig-tbl th,.elig-tbl td{padding:8px 10px !important;}
+  .action-grid{grid-template-columns:1fr 1fr !important; gap:8px !important;}
+  .action-btn .a-desc{display:none !important;}
+  .factor-grid{grid-template-columns:1fr !important;}
+  [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}
 }
 
 /* ---------- Loading skeleton ---------- */
