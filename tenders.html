@@ -15,6 +15,7 @@
   <span class="logo">B</span> BidDost AI
   <span class="lbl brand" style="font-size:11px;">TENDER INBOX</span>
   <span class="right">
+    <span id="lang-switch"></span>
     <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button>
     <span id="user-name"></span>
     <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.signOut().then(function(){BIDDOST.go('login.html')})">Log out</button>
@@ -328,6 +329,9 @@
   B.user().then(function (u) {
     user = u;
     if (u && u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
+    document.getElementById("lang-switch").innerHTML = B.renderLangSwitcher();
+    B.setLanguage(B.getLang());
+    B.setupRealtimeNotifications(u.id);
     return B.getCompany(u.id);
   }).then(function (res) {
     if (res.error || !res.data) { companyId = null; } else { companyId = res.data.id; }
