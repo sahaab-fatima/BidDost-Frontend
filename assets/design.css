@@ -495,9 +495,3 @@ select.in{appearance:none; background-image:url("data:image/svg+xml;charset=UTF-
 .toast.removing{animation:toastOut .3s ease forwards;}
 @keyframes toastIn{from{opacity:0;transform:translateX(40px);}to{opacity:1;transform:translateX(0);}}
 @keyframes toastOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(40px);}}
-
-/* ---------- Language Switcher ---------- */
-.lang-switcher{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.12);border-radius:var(--radius-full);padding:3px;}
-.lang-switcher button{background:none;border:none;color:rgba(255,255,255,.6);font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--radius-full);cursor:pointer;transition:.15s;font-family:var(--font-body);}
-.lang-switcher button:hover{color:#fff;}
-.lang-switcher button.active{background:rgba(255,255,255,.2);color:#fff;}

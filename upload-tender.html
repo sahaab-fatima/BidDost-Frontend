@@ -15,7 +15,6 @@
   <span class="logo">B</span> BidDost AI
   <span class="lbl brand" style="font-size:11px;">UPLOAD TENDER</span>
   <span class="right">
-    <span id="lang-switch"></span>
     <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('company-profile.html')">Profile</button>
     <button class="btn ghost sm" style="color:#fff;" onclick="BIDDOST.go('tenders.html')">Tenders</button>
     <span id="user-name"></span>
@@ -210,8 +209,6 @@
   B.user().then(function (u) {
     user = u;
     if (u && u.user_metadata && u.user_metadata.full_name) document.getElementById("user-name").textContent = u.user_metadata.full_name;
-    document.getElementById("lang-switch").innerHTML = B.renderLangSwitcher();
-    B.setLanguage(B.getLang());
     B.setupRealtimeNotifications(u.id);
     return B.getCompany(u.id);
   }).then(function (res) {
